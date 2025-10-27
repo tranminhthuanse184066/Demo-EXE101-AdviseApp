@@ -1,3 +1,4 @@
+import { Layout } from 'antd';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Footer from './components/Footer.jsx';
@@ -14,6 +15,8 @@ import TakeTestPage from './pages/TakeTestPage.jsx';
 import TestResultPage from './pages/TestResultPage.jsx';
 import UniversitiesPage from './pages/UniversitiesPage.jsx';
 
+const { Content } = Layout;
+
 const ProtectedRoute = ({ allowedRoles, children }) => {
   const { currentUser } = useApp();
   if (!currentUser) return <Navigate to="/auth" replace />;
@@ -24,13 +27,15 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
 };
 
 const MainLayout = () => (
-  <>
+  <Layout className="min-h-screen">
     <Header />
-    <main className="app-shell">
-      <Outlet />
-    </main>
+    <Content className="px-3 sm:px-6 pb-12">
+      <div className="mx-auto w-full max-w-6xl py-10 space-y-8">
+        <Outlet />
+      </div>
+    </Content>
     <Footer />
-  </>
+  </Layout>
 );
 
 const App = () => (

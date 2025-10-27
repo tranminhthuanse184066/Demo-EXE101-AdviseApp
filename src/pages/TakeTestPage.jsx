@@ -1,178 +1,198 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+﻿import { Button, Card, Radio, Space, Tag } from 'antd';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
+import { assessmentCatalog } from '../data/assessments.js';
 
-const questionBank = [
-  {
-    id: 'q1',
-    text: 'Hoạt động sau khiến bạn hứng thú nhất?',
-    options: [
-      { label: 'A. Lắp ráp robot mini', trait: 'R' },
-      { label: 'B. Phân tích số liệu từ thí nghiệm', trait: 'I' },
-      { label: 'C. Lên kế hoạch bán hàng', trait: 'E' },
-    ],
-  },
-  {
-    id: 'q2',
-    text: 'Bạn thích kiểu bài tập nào?',
-    options: [
-      { label: 'A. Vẽ poster sự kiện', trait: 'A' },
-      { label: 'B. Tư vấn định hướng cho bạn', trait: 'S' },
-      { label: 'C. Giải các bài toán logic', trait: 'I' },
-    ],
-  },
-  {
-    id: 'q3',
-    text: 'Thời gian rảnh bạn thường:',
-    options: [
-      { label: 'A. Chơi thể thao ngoài trời', trait: 'R' },
-      { label: 'B. Viết blog, chia sẻ cảm xúc', trait: 'A' },
-      { label: 'C. Tìm hiểu luật, tin tức kinh tế', trait: 'C' },
-    ],
-  },
-  {
-    id: 'q4',
-    text: 'Nhóm bạn cần người phụ trách, bạn sẽ chọn:',
-    options: [
-      { label: 'A. Điều phối, thúc đẩy mọi người', trait: 'E' },
-      { label: 'B. Ghi chép, quản lý chi tiết', trait: 'C' },
-      { label: 'C. Tạo nội dung truyền thông', trait: 'A' },
-    ],
-  },
-  {
-    id: 'q5',
-    text: 'Môi trường học tập yêu thích:',
-    options: [
-      { label: 'A. Phòng lab với thiết bị công nghệ', trait: 'I' },
-      { label: 'B. Studio sáng tạo', trait: 'A' },
-      { label: 'C. Không gian mở để gặp gỡ nhiều người', trait: 'S' },
-    ],
-  },
-  {
-    id: 'q6',
-    text: 'Bạn cảm thấy tự tin khi:',
-    options: [
-      { label: 'A. Hỗ trợ người khác giải quyết khó khăn', trait: 'S' },
-      { label: 'B. Quản lý ngân sách, con số', trait: 'C' },
-      { label: 'C. Tự tay sửa chữa đồ dùng', trait: 'R' },
-    ],
-  },
-  {
-    id: 'q7',
-    text: 'Khi làm dự án dài hơi, bạn thường:',
-    options: [
-      { label: 'A. Đặt KPI và theo sát tiến độ', trait: 'E' },
-      { label: 'B. Tập trung nghiên cứu chiều sâu', trait: 'I' },
-      { label: 'C. Viết, kể câu chuyện truyền cảm hứng', trait: 'A' },
-    ],
-  },
-  {
-    id: 'q8',
-    text: 'Nếu tham gia CLB mới, bạn chọn:',
-    options: [
-      { label: 'A. CLB tranh biện / MC', trait: 'E' },
-      { label: 'B. CLB khoa học – STEM', trait: 'I' },
-      { label: 'C. Đội công tác xã hội', trait: 'S' },
-    ],
-  },
-  {
-    id: 'q9',
-    text: 'Khi đọc tin tức, bạn quan tâm nhất tới:',
-    options: [
-      { label: 'A. Thành tựu công nghệ mới', trait: 'R' },
-      { label: 'B. Xu hướng marketing sáng tạo', trait: 'A' },
-      { label: 'C. Chính sách tài chính, kinh tế', trait: 'E' },
-    ],
-  },
-  {
-    id: 'q10',
-    text: 'Trong nhóm học tập, bạn thường đảm nhận:',
-    options: [
-      { label: 'A. Người kết nối, hỗ trợ tinh thần', trait: 'S' },
-      { label: 'B. Người thiết kế slide bắt mắt', trait: 'A' },
-      { label: 'C. Người tổng hợp tài liệu khoa học', trait: 'I' },
-    ],
-  },
-  {
-    id: 'q11',
-    text: 'Bạn mong muốn công việc tương lai:',
-    options: [
-      { label: 'A. Tạo ra sản phẩm hữu hình', trait: 'R' },
-      { label: 'B. Làm việc với dữ liệu, phân tích', trait: 'C' },
-      { label: 'C. Giao tiếp với nhiều khách hàng', trait: 'E' },
-    ],
-  },
-  {
-    id: 'q12',
-    text: 'Điều khiến bạn tự hào nhất:',
-    options: [
-      { label: 'A. Kiên trì luyện tập kỹ năng mới', trait: 'R' },
-      { label: 'B. Lên ý tưởng sáng tạo độc đáo', trait: 'A' },
-      { label: 'C. Giúp người khác cảm thấy tốt hơn', trait: 'S' },
-    ],
-  },
-];
+const buildInitialAnswers = (questions) => {
+  const map = {};
+  questions.forEach((question) => {
+    map[question.id] = '';
+  });
+  return map;
+};
+
+const randomInitial = assessmentCatalog[Math.floor(Math.random() * assessmentCatalog.length)];
+
+const TestCard = ({ test, active, onSelect }) => (
+  <Card
+    hoverable
+    onClick={() => onSelect(test)}
+    className={`h-full overflow-hidden transition-all duration-200 ${active ? 'ring-2 ring-blue-500 shadow-lg' : 'border border-slate-200 hover:shadow-lg'}`}
+    bodyStyle={{ padding: '1.25rem' }}
+  >
+    <div className="flex h-full flex-col gap-4">
+      <div className="relative rounded-2xl bg-slate-900 p-5 text-white">
+        <div className="flex items-center justify-between">
+          <Tag color="green">Miễn phí</Tag>
+          <Tag color="blue">{test.shortLabel}</Tag>
+        </div>
+        <h3 className="mt-4 text-lg font-semibold">{test.name}</h3>
+        <p className="mt-1 text-sm text-white/70">{test.tagline}</p>
+        <Button
+          type={active ? 'primary' : 'default'}
+          shape="round"
+          block
+          className="mt-4"
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect(test);
+          }}
+        >
+          {active ? 'Đang chọn' : 'Bắt đầu'}
+        </Button>
+      </div>
+      <div className="h-28 overflow-hidden rounded-2xl bg-slate-100">
+        <img src={test.coverImage} alt={`Minh họa ${test.name}`} className="h-full w-full object-cover" />
+      </div>
+    </div>
+  </Card>
+);
 
 const TakeTestPage = () => {
   const { submitAssessment } = useApp();
-  const [answers, setAnswers] = useState({});
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const [selectedId, setSelectedId] = useState(randomInitial.id);
+  const [answers, setAnswers] = useState(() => buildInitialAnswers(randomInitial.questions));
+  const [error, setError] = useState('');
+  const questionSectionRef = useRef(null);
 
-  const handleChange = (questionId, trait) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: trait }));
-    setError('');
+  const scrollToQuestions = () => {
+    if (questionSectionRef.current) {
+      questionSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
+  const selectTest = (test) => {
+    setSelectedId(test.id);
+    setAnswers(buildInitialAnswers(test.questions));
+    setError('');
+    requestAnimationFrame(scrollToQuestions);
+  };
+
+  useEffect(() => {
+    if (location.state?.preset) {
+      const match = assessmentCatalog.find((test) => test.id === location.state.preset);
+      if (match) {
+        selectTest(match);
+      }
+    }
+  }, [location.state]);
+
+  const selectedTest = useMemo(
+    () => assessmentCatalog.find((item) => item.id === selectedId) || randomInitial,
+    [selectedId],
+  );
+
+  useEffect(() => {
+    // keep answers in sync when selected test changes via URL or default
+    setAnswers(buildInitialAnswers(selectedTest.questions));
+  }, [selectedTest]);
+
+  const progress = useMemo(() => {
+    const filled = Object.values(answers).filter(Boolean).length;
+    return Math.round((filled / selectedTest.questions.length) * 100);
+  }, [answers, selectedTest.questions.length]);
+
   const handleSubmit = () => {
-    if (Object.keys(answers).length < questionBank.length) {
-      setError('Vui lòng hoàn thành tất cả câu hỏi.');
+    const incomplete = selectedTest.questions.some((question) => !answers[question.id]);
+    if (incomplete) {
+      setError('Bạn cần chọn đáp án cho tất cả câu hỏi.');
       return;
     }
-    const res = submitAssessment(answers);
+    const outcome = selectedTest.evaluate(answers);
+    const res = submitAssessment({ ...outcome, testType: selectedTest.id, testLabel: selectedTest.name });
     if (!res?.ok) {
-      setError(res.message);
+      setError(res?.message || 'Không lưu được bài test lúc này.');
       return;
     }
     navigate('/test-result', { state: { highlight: true } });
   };
 
-  return (
-    <section className="test-page">
-      <header>
-        <h2>Bài trắc nghiệm RIASEC rút gọn</h2>
-        <p>Chọn phương án giống bạn nhất. Kết quả dùng cho gợi ý ngành và lọc trường.</p>
-      </header>
+  const handleShuffle = () => {
+    const next = assessmentCatalog[Math.floor(Math.random() * assessmentCatalog.length)];
+    selectTest(next);
+  };
 
-      <div className="question-list">
-        {questionBank.map((question) => (
-          <article key={question.id} className="question">
-            <p>
-              <strong>{question.id.toUpperCase()}</strong> {question.text}
+  return (
+    <Space direction="vertical" size="large" className="w-full">
+      <Card bordered={false} className="shadow-lg" bodyStyle={{ padding: '2rem' }}>
+        <Space direction="vertical" size="large" className="w-full">
+          <div className="flex flex-col gap-2">
+            <Tag color="blue" className="w-fit rounded-full px-4 py-1 text-sm">Bộ test miễn phí</Tag>
+            <h1 className="text-3xl font-semibold text-slate-900">Chọn bài test phù hợp</h1>
+            <p className="max-w-2xl text-sm text-slate-500">
+              Bắt đầu với bài test bạn quan tâm, tất cả đều miễn phí và có thể hoàn thành ngay trong vài phút.
             </p>
-            <div className="options">
-              {question.options.map((option) => (
-                <label key={option.trait} className={answers[question.id] === option.trait ? 'selected' : ''}>
-                  <input
-                    type="radio"
-                    name={question.id}
-                    value={option.trait}
-                    checked={answers[question.id] === option.trait}
-                    onChange={() => handleChange(question.id, option.trait)}
-                  />
-                  {option.label}
-                </label>
-              ))}
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {assessmentCatalog.map((test) => (
+              <TestCard key={test.id} test={test} active={selectedId === test.id} onSelect={selectTest} />
+            ))}
+          </div>
+        </Space>
+      </Card>
+
+      <div ref={questionSectionRef} className="w-full">
+        <Card bordered={false} className="shadow-lg" bodyStyle={{ padding: '2rem' }}>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-2">
+              <Space size="small" wrap>
+                <Tag color="green">Miễn phí</Tag>
+                <Tag color="blue">{selectedTest.shortLabel}</Tag>
+              </Space>
+              <h2 className="text-2xl font-semibold text-slate-900">{selectedTest.name}</h2>
+              <p className="text-sm text-slate-500">{selectedTest.description}</p>
             </div>
-          </article>
-        ))}
+            <div className="flex flex-col items-start gap-2 md:items-end">
+              <span className="text-sm text-slate-500">Hoàn thành</span>
+              <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600">{progress}%</div>
+            </div>
+          </div>
+        </Card>
       </div>
 
-      {error && <p className="form-message">{error}</p>}
-      <button className="primary" type="button" onClick={handleSubmit}>
-        Nộp bài
-      </button>
-    </section>
+      <Space direction="vertical" size="large" className="w-full">
+        {selectedTest.questions.map((question, index) => (
+          <Card
+            key={question.id}
+            className="border-none shadow-md"
+            title={`Câu ${index + 1}`}
+            extra={<Tag color={answers[question.id] ? 'green' : 'default'}>{answers[question.id] ? 'Đã chọn' : 'Chưa chọn'}</Tag>}
+          >
+            <Space direction="vertical" size="middle" className="w-full">
+              <p className="text-base font-medium text-slate-800">{question.prompt}</p>
+              <Radio.Group
+                onChange={(event) => {
+                  setAnswers((prev) => ({ ...prev, [question.id]: event.target.value }));
+                  setError('');
+                }}
+                value={answers[question.id]}
+                className="grid gap-3"
+              >
+                {question.options.map((option) => (
+                  <Radio.Button key={option.value} value={option.value} className="text-left">
+                    {option.label}
+                  </Radio.Button>
+                ))}
+              </Radio.Group>
+            </Space>
+          </Card>
+        ))}
+      </Space>
+
+      {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
+
+      <Space size="middle" wrap>
+        <Button shape="round" onClick={handleShuffle}>
+          Đổi bộ câu hỏi
+        </Button>
+        <Button type="primary" shape="round" onClick={handleSubmit}>
+          Gửi kết quả
+        </Button>
+      </Space>
+    </Space>
   );
 };
 

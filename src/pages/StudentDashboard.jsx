@@ -1,6 +1,15 @@
+﻿import { Avatar, Button, Card, Col, Empty, Progress, Row, Space, Statistic, Tag, Tooltip } from 'antd';
+import { ExperimentOutlined, FireOutlined, HeartOutlined, SendOutlined, StarFilled, TeamOutlined } from '@ant-design/icons';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
+
+const quickTiles = [
+  { icon: <ExperimentOutlined />, label: 'Làm test', to: '/take-test' },
+  { icon: <FireOutlined />, label: 'Ngành nổi bật', to: '/test-result' },
+  { icon: <TeamOutlined />, label: 'Trường phù hợp', to: '/universities' },
+  { icon: <SendOutlined />, label: 'Xem lộ trình', to: '/roadmap' },
+];
 
 const StudentDashboard = () => {
   const { currentUser, findProfile, findTestResult, majorGroups, universities } = useApp();
@@ -16,158 +25,165 @@ const StudentDashboard = () => {
       .filter(Boolean);
   }, [testResult, majorGroups]);
 
-  const actionCards = [
-    { icon: '🧠', label: 'Làm trắc nghiệm', desc: '10-15 câu vibe GenZ', to: '/take-test' },
-    { icon: '✨', label: 'Kết quả & ngành', desc: 'Top 3 nhóm nổi bật', to: '/test-result' },
-    { icon: '🎓', label: 'Tìm trường', desc: 'Lọc & so sánh 20+ trường', to: '/universities' },
-    { icon: '🗺️', label: 'Roadmap', desc: 'Tick trạng thái tiến độ', to: '/roadmap' },
-    { icon: '💬', label: 'Chat tư vấn', desc: 'Bot trả lời FAQ', to: '/chat' },
-  ];
-
   if (!currentUser || currentUser.role !== 'student') {
     return (
-      <section className="dashboard">
-        <p>Vui lòng đăng nhập bằng tài khoản học sinh để xem dashboard.</p>
-      </section>
+      <Card className="shadow-lg" bordered={false}>
+        <Empty description="Đăng nhập bằng tài khoản học sinh để xem bảng tin" />
+      </Card>
     );
   }
 
   return (
-    <section className="dashboard">
-      <div className="dashboard-hero">
-        <div className="profile-head">
-          <img src={currentUser.avatar} alt={currentUser.fullName} />
-          <div>
-            <p className="eyebrow">Xin chào</p>
-            <h2>{currentUser.fullName}</h2>
-            <p>Lớp {profile?.gradeLevel || '--'} · Điểm TB {profile?.avgScore ?? '--'}</p>
-            <small>Mã liên kết phụ huynh: {currentUser.linkedParentCode || 'Đang tạo...'}</small>
-          </div>
+    <Space direction="vertical" size="large" className="w-full">
+      <Card bordered={false} className="shadow-xl" bodyStyle={{ padding: '2rem' }}>
+        <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
+          <Space size="large">
+            <Avatar size={80} src={currentUser.avatar} />
+            <Space direction="vertical" size={4}>
+              <span className="text-sm text-slate-500">Chào mừng trở lại</span>
+              <h2 className="text-2xl font-semibold text-slate-900">{currentUser.fullName}</h2>
+              <Space size="small" wrap>
+                <Tag color="blue">GPA {profile?.avgScore ?? '--'}</Tag>
+                <Tag color="green">Tổ hợp {profile?.stream || 'Cập nhật sau'}</Tag>
+                <Tag color="purple">Mã phụ huynh {currentUser.linkedParentCode || 'Đang tạo'}</Tag>
+              </Space>
+            </Space>
+          </Space>
+          <Row gutter={16} className="w-full md:w-auto">
+            <Col xs={12} md={8}>
+              <Statistic title="Bài test" value={testResult ? 1 : 0} suffix="đã làm" valueStyle={{ fontSize: 28 }} />
+            </Col>
+            <Col xs={12} md={8}>
+              <Statistic title="Trường lưu" value={profile?.savedUniversities?.length || 0} suffix="trường" valueStyle={{ fontSize: 28 }} />
+            </Col>
+            <Col xs={12} md={8}>
+              <Statistic title="Lộ trình" value={profile?.roadmapUnlocked ? 'Đã mở' : 'Chưa mở'} valueStyle={{ fontSize: 24 }} />
+            </Col>
+          </Row>
         </div>
-        <div className="guidance-card">
-          <h3>3 bước ngay</h3>
-          <div className="guidance-list">
-            <span>1️⃣ Test RIASEC</span>
-            <span>2️⃣ Nhận ngành</span>
-            <span>3️⃣ Share phụ huynh</span>
-          </div>
-        </div>
-      </div>
+      </Card>
 
-      <div className="grid-4">
-        {actionCards.map((card) => (
-          <button key={card.to} className="action-card icon-card" type="button" onClick={() => navigate(card.to)}>
-            <span className="icon-bubble">{card.icon}</span>
-            <div>
-              <span>{card.label}</span>
-              <p>{card.desc}</p>
-            </div>
-          </button>
+      <Row gutter={[16, 16]}>
+        {quickTiles.map((tile) => (
+          <Col key={tile.label} xs={12} md={6}>
+            <Card hoverable className="h-full border-none bg-white/80 shadow-lg" onClick={() => navigate(tile.to)}>
+              <Space direction="vertical" size="middle" className="items-start">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-xl text-blue-600">
+                  {tile.icon}
+                </span>
+                <p className="text-lg font-semibold text-slate-800">{tile.label}</p>
+              </Space>
+            </Card>
+          </Col>
         ))}
-      </div>
+      </Row>
 
-      <div className="insight-row">
-        <article className="panel mini">
-          <span className="icon-bubble">📚</span>
-          <div>
-            <p>Tổ hợp mạnh</p>
-            <strong>{profile?.stream || 'N/A'}</strong>
-          </div>
-        </article>
-        <article className="panel mini">
-          <span className="icon-bubble">🔥</span>
-          <div>
-            <p>Nhóm ngành top</p>
-            <strong>{topMajors[0]?.name || 'Chưa có'}</strong>
-          </div>
-        </article>
-        <article className="panel mini">
-          <span className="icon-bubble">❤️</span>
-          <div>
-            <p>Trường đã lưu</p>
-            <strong>{profile?.savedUniversities?.length || 0}</strong>
-          </div>
-        </article>
-      </div>
-
-      <div className="panel-grid">
-        <article className="panel">
-          <header>
-            <h3>Hồ sơ học sinh</h3>
-          </header>
-          <ul className="profile-list">
-            <li>
-              <span>Khối lớp</span>
-              <strong>{profile?.gradeLevel || '-'}</strong>
-            </li>
-            <li>
-              <span>Tổ hợp</span>
-              <strong>{profile?.stream || '-'}</strong>
-            </li>
-            <li>
-              <span>Sở thích</span>
-              <strong>{profile?.interests?.join(', ') || 'Cập nhật thêm'}</strong>
-            </li>
-          </ul>
-        </article>
-
-        <article className="panel">
-          <header>
-            <h3>Kết quả mới nhất</h3>
-          </header>
-          {testResult ? (
-            <>
-              <p className="trait-highlight">{testResult.traitSummary}</p>
-              <div className="tag-row">
-                {topMajors.map((major) => (
-                  <span key={major.code} className="tag">
-                    {major.name}
-                  </span>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={12}>
+          <Card title="Mục tiêu nhanh" bordered={false} className="shadow-lg">
+            <Space direction="vertical" size="middle" className="w-full">
+              <Space size="large">
+                <Tag color="gold" icon={<StarFilled />}>Điểm nóng</Tag>
+                <span className="text-sm text-slate-500">Giữ GPA >= 8.0 mỗi học kỳ</span>
+              </Space>
+              <Space size="small" wrap>
+                {(profile?.interests?.length ? profile.interests : ['Cập nhật sở thích']).map((chip) => (
+                  <Tag key={chip} bordered={false} color="blue">
+                    {chip}
+                  </Tag>
                 ))}
-              </div>
-              <button className="secondary" type="button" onClick={() => navigate('/test-result')}>
-                Xem chi tiết
-              </button>
-            </>
-          ) : (
-            <>
-              <p>Chưa có bài test. Hãy bắt đầu để nhận gợi ý ngành.</p>
-              <button className="primary" type="button" onClick={() => navigate('/take-test')}>
-                Làm trắc nghiệm
-              </button>
-            </>
-          )}
-        </article>
-      </div>
+              </Space>
+            </Space>
+          </Card>
+        </Col>
+        <Col xs={24} md={12}>
+          <Card title="Bài test mới nhất" bordered={false} className="shadow-lg">
+            {testResult ? (
+              <Space direction="vertical" size="middle" className="w-full">
+                <div className="flex items-center gap-3">
+                  <Tag color="blue">{testResult.testLabel}</Tag>
+                  <span className="text-lg font-semibold text-slate-900">{testResult.traitSummary}</span>
+                </div>
+                <Space size="small" wrap>
+                  {topMajors.map((major) => (
+                    <Tag key={major.code} color="green">
+                      {major.name}
+                    </Tag>
+                  ))}
+                </Space>
+                <Button type="link" onClick={() => navigate('/test-result')}>
+                  Xem báo cáo chi tiết
+                </Button>
+              </Space>
+            ) : (
+              <Space direction="vertical" size="middle" className="w-full items-start">
+                <p className="text-sm text-slate-500">Bạn chưa làm bài test nào. Thử một quiz cực nhanh nhé!</p>
+                <Button type="primary" shape="round" onClick={() => navigate('/take-test')}>
+                  Làm test ngay
+                </Button>
+              </Space>
+            )}
+          </Card>
+        </Col>
+      </Row>
 
-      <article className="panel">
-        <header>
-          <h3>Trường đã lưu</h3>
-        </header>
+      <Card title="Trường đã lưu" bordered={false} className="shadow-lg">
         {profile?.savedUniversities?.length ? (
-          <div className="grid-3">
+          <Row gutter={[16, 16]}>
             {universities
               .filter((uni) => profile.savedUniversities.includes(uni.id))
               .map((uni) => (
-                <div key={uni.id} className="info-card icon-card">
-                  <span className="icon-bubble">🎓</span>
-                  <div>
-                    <h4>{uni.name}</h4>
-                    <p>
-                      {uni.city} · Điểm chuẩn {uni.minScore}
-                    </p>
-                    <a href={uni.url} target="_blank" rel="noreferrer">
-                      Website trường
-                    </a>
-                  </div>
-                </div>
+                <Col xs={24} md={12} key={uni.id}>
+                  <Card hoverable className="h-full border border-slate-100 shadow-sm" onClick={() => window.open(uni.url, '_blank')}>
+                    <Space direction="vertical" size="small">
+                      <p className="text-lg font-semibold text-slate-900">{uni.name}</p>
+                      <span className="text-sm text-slate-500">{uni.city} - Điểm chuẩn {uni.minScore}</span>
+                      <Tooltip title="Mở website trường">
+                        <Button type="text" size="small">
+                          Xem website
+                        </Button>
+                      </Tooltip>
+                    </Space>
+                  </Card>
+                </Col>
               ))}
-          </div>
+          </Row>
         ) : (
-          <p>Chưa lưu trường nào. Hãy khám phá ở mục Tìm & So sánh Trường.</p>
+          <Empty description="Chưa có trường yêu thích" />
         )}
-      </article>
-    </section>
+      </Card>
+
+      {profile?.roadmapUnlocked && profile?.roadmap?.length ? (
+        <Card title="Nhịp độ lộ trình" bordered={false} className="shadow-lg">
+          <Row gutter={[16, 16]}>
+            {profile.roadmap.slice(0, 3).map((step) => (
+              <Col xs={24} md={8} key={step.id}>
+                <Card bordered={false} className="border border-slate-100 bg-blue-50/60 shadow-sm">
+                  <Space direction="vertical" size="small">
+                    <Tag color="blue">{step.phase.split(' ')[0]}</Tag>
+                    <p className="font-semibold text-slate-900">{step.title}</p>
+                    <Progress percent={step.status === 'done' ? 100 : step.status === 'doing' ? 60 : 15} size="small" status="active" />
+                  </Space>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+          <Button className="mt-4" shape="round" onClick={() => navigate('/roadmap')}>
+            Mở toàn bộ lộ trình
+          </Button>
+        </Card>
+      ) : null}
+
+      <Card bordered={false} className="shadow-lg">
+        <Space direction="vertical" size="small" className="w-full">
+          <Tag color="pink" icon={<HeartOutlined />}>Chia sẻ với phụ huynh</Tag>
+          <p className="text-sm text-slate-500">Gửi mã dưới đây để phụ huynh liên kết tài khoản.</p>
+          <div className="flex items-center gap-3 rounded-2xl border border-dashed border-pink-200 bg-pink-50 px-4 py-3 text-lg font-semibold text-pink-600">
+            {currentUser.linkedParentCode || 'Đang tạo'}
+          </div>
+        </Space>
+      </Card>
+    </Space>
   );
 };
 

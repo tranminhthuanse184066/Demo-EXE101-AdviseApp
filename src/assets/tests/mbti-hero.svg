@@ -1,0 +1,22 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="gradMbti" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f472b6" />
+      <stop offset="100%" stop-color="#9333ea" />
+    </linearGradient>
+    <radialGradient id="radMbti" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#fdf4ff" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#4c1d95" stop-opacity="0.6" />
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#gradMbti)" />
+  <rect x="60" y="40" width="220" height="140" rx="32" fill="#fdf4ff" opacity="0.18" />
+  <rect x="360" y="40" width="200" height="120" rx="24" fill="#fdf4ff" opacity="0.2" />
+  <circle cx="210" cy="250" r="160" fill="url(#radMbti)" />
+  <circle cx="500" cy="230" r="120" fill="#f5d0fe" opacity="0.56" />
+  <path d="M260 120h120l-60 160z" fill="#f0abfc" opacity="0.6" />
+  <path d="M360 220c28-52 88-86 148-70l-36 96c-20-10-42-12-63-6z" fill="#fdf2f8" opacity="0.6" />
+  <circle cx="120" cy="90" r="22" fill="#fde68a" opacity="0.85" />
+  <circle cx="140" cy="75" r="8" fill="#fef9c3" />
+  <circle cx="470" cy="80" r="16" fill="#fef3c7" opacity="0.7" />
+</svg>

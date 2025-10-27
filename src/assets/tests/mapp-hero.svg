@@ -1,0 +1,20 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="gradMapp" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#0ea5e9" />
+    </linearGradient>
+    <radialGradient id="radMapp" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ecfeff" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.5" />
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#gradMapp)" />
+  <circle cx="180" cy="140" r="110" fill="#ecfeff" opacity="0.25" />
+  <rect x="80" y="220" width="240" height="110" rx="32" fill="#ecfeff" opacity="0.4" />
+  <circle cx="420" cy="240" r="150" fill="url(#radMapp)" />
+  <path d="M300 120c40-24 88-30 134-16s84 46 108 88l-84 32c-12-20-32-36-55-42s-48-2-69 10z" fill="#134e4a" opacity="0.45" />
+  <path d="M160 300c18-44 58-78 106-88 40-8 84 2 116 30l-64 50c-14-10-32-14-49-11s-33 13-43 27z" fill="#cffafe" opacity="0.6" />
+  <circle cx="520" cy="90" r="28" fill="#a7f3d0" opacity="0.7" />
+  <circle cx="500" cy="70" r="10" fill="#ecfdf5" />
+</svg>

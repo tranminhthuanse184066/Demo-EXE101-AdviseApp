@@ -1,0 +1,20 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="gradGardner" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#facc15" />
+    </linearGradient>
+    <radialGradient id="radGardner" cx="70%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#fff7ed" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#7c2d12" stop-opacity="0.5" />
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#gradGardner)" />
+  <circle cx="160" cy="240" r="150" fill="url(#radGardner)" />
+  <rect x="360" y="60" width="220" height="140" rx="36" fill="#fffbeb" opacity="0.4" />
+  <path d="M140 120c34-36 80-56 128-54 36 2 72 14 102 34s56 48 72 80l-92 28c-9-20-26-36-46-44s-43-8-64-2z" fill="#ea580c" opacity="0.5" />
+  <path d="M400 260c-22 30-56 50-94 55-44 6-90-9-124-38l44-48c17 14 39 21 60 18 18-3 34-13 46-27z" fill="#fef3c7" opacity="0.7" />
+  <circle cx="520" cy="280" r="32" fill="#fed7aa" opacity="0.6" />
+  <circle cx="520" cy="260" r="12" fill="#ffedd5" />
+  <circle cx="120" cy="80" r="18" fill="#fb923c" opacity="0.7" />
+</svg>

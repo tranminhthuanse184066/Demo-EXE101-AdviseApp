@@ -1,5 +1,5 @@
-import { createContext, useContext, useMemo, useState } from 'react';
-import dayjs from 'dayjs';
+﻿import { createContext, useContext, useMemo, useState } from "react";
+import dayjs from "dayjs";
 import {
   demoRecommendations,
   demoStudentProfiles,
@@ -7,11 +7,13 @@ import {
   demoUsers,
   majorGroups,
   universities,
-} from '../data/mockData';
+} from "../data/mockData";
 
-const STORAGE_KEY = 'edupath-state';
+const STORAGE_KEY = "edupath-state";
 
 const clone = (payload) => JSON.parse(JSON.stringify(payload));
+
+const idFactory = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 
 const buildInitialState = () => ({
   users: clone(demoUsers),
@@ -23,101 +25,89 @@ const buildInitialState = () => ({
 });
 
 const loadState = () => {
-  if (typeof window === 'undefined') return buildInitialState();
-  const cached = window.localStorage.getItem(STORAGE_KEY);
-  if (!cached) {
+  if (typeof window === "undefined") return buildInitialState();
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
     const initial = buildInitialState();
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
     return initial;
   }
   try {
-    return JSON.parse(cached);
-  } catch (err) {
-    console.error('Failed to parse cached state', err);
+    return JSON.parse(raw);
+  } catch (error) {
+    console.error("Failed to parse cached state", error);
     const fallback = buildInitialState();
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback));
     return fallback;
   }
 };
 
-const AppContext = createContext(null);
-
-const idFactory = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
-
-const makeRoadmapTemplate = () => [
+const keywordsReply = [
   {
-    id: idFactory('step'),
-    title: 'Ôn tổ hợp mục tiêu',
-    dueDate: dayjs().add(30, 'day').format('YYYY-MM-DD'),
-    status: 'todo',
+    keyword: "hoc phi",
+    reply: "Học phí trung bình các trường dao động 20-60 triệu mỗi năm. Vào mục Trường học để lọc theo mức mong muốn.",
   },
   {
-    id: idFactory('step'),
-    title: 'Nộp hồ sơ xét tuyển',
-    dueDate: dayjs().add(60, 'day').format('YYYY-MM-DD'),
-    status: 'todo',
+    keyword: "diem chuan",
+    reply: "Điểm chuẩn của từng trường đã hiển thị trong danh sách. Hãy đặt mục tiêu cao hơn 1-2 điểm để an toàn.",
   },
   {
-    id: idFactory('step'),
-    title: 'Theo dõi học bổng & lịch phỏng vấn',
-    dueDate: dayjs().add(90, 'day').format('YYYY-MM-DD'),
-    status: 'todo',
+    keyword: "khoi xet",
+    reply: "Khối xét tuyển phổ biến: A00, A01, D01. So sánh với tổ hợp mạnh và yêu cầu từng trường.",
   },
 ];
 
 const traitToMajors = (traitSummary) => {
-  const letters = traitSummary.replace(/[^RIASEC]/g, '').split('');
-  const picks = new Set();
-
-  const add = (...codes) => codes.forEach((code) => picks.add(code));
-
-  if (letters.includes('I') && letters.includes('R')) {
-    add('CS_AI', 'MECH_ELEC');
-  }
-  if (letters.includes('A') && letters.includes('S')) {
-    add('MARKETING', 'PSYCH_SOC', 'MEDIA');
-  }
-  if (letters.includes('E')) {
-    add('BUSINESS', 'FINANCE');
-  }
-  if (letters.includes('C')) {
-    add('LAW', 'FINANCE');
-  }
-  if (letters.includes('I')) {
-    add('DATA_SCI');
-  }
-  if (letters.includes('R')) {
-    add('CYBER');
-  }
-  if (letters.includes('A')) {
-    add('MEDIA');
-  }
-  return Array.from(picks).slice(0, 3);
+  if (!traitSummary) return [];
+  const letters = traitSummary.replace(/[^RIASEC]/g, "").split("");
+  const picks = [];
+  const add = (...codes) => {
+    codes.forEach((code) => {
+      if (!picks.includes(code)) picks.push(code);
+    });
+  };
+  if (letters.includes("I") && letters.includes("R")) add("CS_AI", "MECH_ELEC");
+  if (letters.includes("A") && letters.includes("S")) add("MARKETING", "PSYCH_SOC", "MEDIA");
+  if (letters.includes("E")) add("BUSINESS", "FINANCE");
+  if (letters.includes("C")) add("LAW", "FINANCE");
+  if (letters.includes("I")) add("DATA_SCI");
+  if (letters.includes("R")) add("CYBER");
+  if (letters.includes("A")) add("MEDIA");
+  return picks.slice(0, 3);
 };
 
-const keywordsReply = [
-  {
-    keyword: 'học phí',
-    reply:
-      'Học phí trung bình dao động 15–60 triệu/năm tùy trường. Bạn có thể lọc theo mức học phí trong phần So sánh trường.',
-  },
-  {
-    keyword: 'điểm chuẩn',
-    reply: 'Điểm chuẩn tối thiểu đã được hiển thị trong danh sách trường. Chuẩn bị mức điểm an toàn cao hơn 1-2 điểm.',
-  },
-  {
-    keyword: 'khối xét tuyển',
-    reply:
-      'Khối xét tuyển phổ biến: A00, A1, D01. Bạn nên đối chiếu với tổ hợp mạnh nhất và yêu cầu từng trường.',
-  },
-];
+const buildFullRoadmap = (profile) => {
+  const start = dayjs();
+  const gradeLabel = profile?.gradeLevel || "11";
+  const steps = [
+    { phase: "Nền tảng lớp 10-11", title: "Ôn vững Toán - Lý - Hóa", dueInDays: 30 },
+    { phase: "Nền tảng lớp 10-11", title: "Hoàn thiện kỹ năng tiếng Anh", dueInDays: 60 },
+    { phase: "Nền tảng lớp 10-11", title: "Tham gia 1 dự án CLB", dueInDays: 90 },
+    { phase: "Lớp 12 HK1", title: "Hoàn thành 50% checklist hướng nghiệp", dueInDays: 150 },
+    { phase: "Lớp 12 HK1", title: "Giữ GPA từ 8.0", dueInDays: 170 },
+    { phase: "Lớp 12 HK2", title: "Luyện đề thi tốt nghiệp chuẩn Bộ", dueInDays: 220 },
+    { phase: "Lớp 12 HK2", title: "Chốt danh sách 5 trường mục tiêu", dueInDays: 240 },
+    { phase: "Trước kỳ thi", title: "Hoàn thiện hồ sơ xét tuyển / học bổng", dueInDays: 270 },
+    { phase: "Trước kỳ thi", title: "Lập kế hoạch ôn 4 tuần cuối", dueInDays: 285 },
+    { phase: "Sau kỳ thi", title: "Đánh giá kết quả và phương án dự phòng", dueInDays: 320 },
+  ];
+  return steps.map((step) => ({
+    id: idFactory("road"),
+    phase: `${step.phase} (${gradeLabel})`,
+    title: step.title,
+    dueDate: start.add(step.dueInDays, "day").format("YYYY-MM-DD"),
+    status: "todo",
+  }));
+};
+
+const AppContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
   const [state, setState] = useState(() => loadState());
 
   const persist = (nextState) => {
     setState(nextState);
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
     }
   };
@@ -132,10 +122,12 @@ export const AppProvider = ({ children }) => {
   const findTestResult = (ownerId) => state.testResults.find((result) => result.ownerId === ownerId) || null;
 
   const updateProfile = (ownerId, updater) => {
-    const updatedProfiles = state.studentProfiles.map((profile) =>
-      profile.ownerId === ownerId ? { ...profile, ...updater(profile) } : profile,
+    const profile = findProfile(ownerId);
+    if (!profile) return;
+    const updated = state.studentProfiles.map((item) =>
+      item.ownerId === ownerId ? { ...item, ...updater(item) } : item,
     );
-    persist({ ...state, studentProfiles: updatedProfiles });
+    persist({ ...state, studentProfiles: updated });
   };
 
   const updateUser = (userId, updates) => {
@@ -145,14 +137,14 @@ export const AppProvider = ({ children }) => {
 
   const signUp = (payload) => {
     const { role, fullName, email, password, gradeLevel, stream, avgScore, interests = [] } = payload;
-    if (!role || !['student', 'parent', 'advisor'].includes(role)) {
-      return { ok: false, message: 'Vui lòng chọn vai trò.' };
+    if (!role || !["student", "parent", "advisor"].includes(role)) {
+      return { ok: false, message: "Vui lòng chọn đúng vai trò." };
     }
     if (state.users.some((user) => user.email.toLowerCase() === email.toLowerCase())) {
-      return { ok: false, message: 'Email đã tồn tại.' };
+      return { ok: false, message: "Email đã được dùng, hãy thử email khác." };
     }
 
-    const id = idFactory('user');
+    const id = idFactory("user");
     const baseUser = {
       id,
       role,
@@ -160,32 +152,31 @@ export const AppProvider = ({ children }) => {
       email,
       password,
       avatar: `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(fullName)}`,
-      linkedParentCode: '',
+      linkedParentCode: "",
       linkedParentId: null,
       linkedStudentId: null,
     };
 
     let nextProfiles = state.studentProfiles;
-    let newLinkedCode = '';
+    let newLinkedCode = "";
 
-    if (role === 'student') {
-      const code = (() => {
-        let temp = '';
-        do {
-          temp = Math.random().toString(36).substring(2, 8).toUpperCase();
-        } while (state.users.some((user) => user.linkedParentCode === temp));
-        return temp;
-      })();
+    if (role === "student") {
+      let code = "";
+      do {
+        code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      } while (state.users.some((user) => user.linkedParentCode === code));
       newLinkedCode = code;
       const newProfile = {
         ownerId: id,
-        gradeLevel: gradeLevel || 'Chưa cập nhật',
-        stream: stream || '',
-        avgScore: Number(avgScore) || 20,
+        gradeLevel: gradeLevel || "11",
+        stream: stream || "A00",
+        avgScore: Number(avgScore) || 24,
         interests,
         testResultId: null,
+        roadmapUnlocked: false,
+        roadmapUnlockedAt: null,
+        roadmap: [],
         savedUniversities: [],
-        roadmap: makeRoadmapTemplate(),
       };
       nextProfiles = [...state.studentProfiles, newProfile];
     }
@@ -203,7 +194,11 @@ export const AppProvider = ({ children }) => {
     };
     persist(nextState);
 
-    return { ok: true, message: 'Đăng ký thành công', linkedParentCode: newLinkedCode };
+    return {
+      ok: true,
+      message: "Đăng ký thành công.",
+      linkedParentCode: newLinkedCode,
+    };
   };
 
   const logIn = (email, password) => {
@@ -211,7 +206,7 @@ export const AppProvider = ({ children }) => {
       (user) => user.email.toLowerCase() === email.toLowerCase() && user.password === password,
     );
     if (!found) {
-      return { ok: false, message: 'Sai email hoặc mật khẩu.' };
+      return { ok: false, message: "Sai email hoặc mật khẩu." };
     }
     persist({ ...state, currentUserId: found.id });
     return { ok: true, user: found };
@@ -220,12 +215,13 @@ export const AppProvider = ({ children }) => {
   const logOut = () => persist({ ...state, currentUserId: null });
 
   const linkParentToStudent = (code) => {
-    if (!currentUser || currentUser.role !== 'parent') {
-      return { ok: false, message: 'Chỉ phụ huynh mới có thể liên kết.' };
+    if (!currentUser || currentUser.role !== "parent") {
+      return { ok: false, message: "Chỉ phụ huynh mới sử dụng được tính năng này." };
     }
-    const student = state.users.find((user) => user.role === 'student' && user.linkedParentCode === code.trim());
+    const trimmed = code.trim().toUpperCase();
+    const student = state.users.find((user) => user.role === "student" && user.linkedParentCode === trimmed);
     if (!student) {
-      return { ok: false, message: 'Không tìm thấy học sinh với mã này.' };
+      return { ok: false, message: "Không tìm thấy học sinh với mã này." };
     }
     const updatedUsers = state.users.map((user) => {
       if (user.id === student.id) {
@@ -240,39 +236,36 @@ export const AppProvider = ({ children }) => {
     return { ok: true, student };
   };
 
-  const deriveTraitSummary = (scores) => {
-    const sorted = Object.entries(scores).sort(([, a], [, b]) => b - a);
-    const topTwo = sorted.slice(0, 2).map(([trait]) => trait);
-    return topTwo.join('-');
-  };
-
-  const submitAssessment = (answers) => {
-    if (!currentUser || currentUser.role !== 'student') {
-      return { ok: false, message: 'Bạn cần đăng nhập bằng tài khoản học sinh.' };
+  const submitAssessment = (payload) => {
+    if (!currentUser || currentUser.role !== "student") {
+      return { ok: false, message: "Vui lòng đăng nhập bằng tài khoản học sinh." };
     }
-    const tally = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
-    Object.values(answers).forEach((trait) => {
-      if (trait && tally[trait] !== undefined) {
-        tally[trait] += 1;
-      }
-    });
-    const traitSummary = deriveTraitSummary(tally);
-    const majorCodes = traitToMajors(traitSummary);
-    const testId = idFactory('test');
+    if (!payload || !payload.traitSummary) {
+      return { ok: false, message: "Dữ liệu bài test không hợp lệ." };
+    }
+    const majorCodes = payload.topMajorGroupCodes?.length
+      ? payload.topMajorGroupCodes
+      : traitToMajors(payload.traitSummary);
+    const testId = idFactory("test");
     const newResult = {
       id: testId,
       ownerId: currentUser.id,
-      traitSummary,
-      scoresJson: JSON.stringify(tally),
-      topMajorGroupCodes: majorCodes.length ? majorCodes : ['BUSINESS', 'FINANCE', 'MARKETING'].slice(0, 3),
+      traitSummary: payload.traitSummary,
+      summary: payload.summary || "",
+      insights: payload.insights || [],
+      scoresJson: JSON.stringify(payload.scores || {}),
+      scoreLabelsJson: JSON.stringify(payload.scoreLabels || {}),
+      topMajorGroupCodes: majorCodes.length ? majorCodes : ["BUSINESS", "MARKETING", "DATA_SCI"],
+      testType: payload.testType || "custom",
+      testLabel: payload.testLabel || "Assessment",
+      createdAt: new Date().toISOString(),
     };
-    const existing = state.testResults.filter((result) => result.ownerId !== currentUser.id);
-    const updatedResults = [...existing, newResult];
+    const filtered = state.testResults.filter((result) => result.ownerId !== currentUser.id);
+    const updatedResults = [...filtered, newResult];
     const updatedProfiles = state.studentProfiles.map((profile) =>
       profile.ownerId === currentUser.id ? { ...profile, testResultId: testId } : profile,
     );
-    const nextState = { ...state, testResults: updatedResults, studentProfiles: updatedProfiles };
-    persist(nextState);
+    persist({ ...state, testResults: updatedResults, studentProfiles: updatedProfiles });
     return { ok: true, result: newResult };
   };
 
@@ -281,10 +274,30 @@ export const AppProvider = ({ children }) => {
     if (!profile) return;
     const updatedRoadmap = profile.roadmap.map((step) => {
       if (step.id !== stepId) return step;
-      const nextStatus = step.status === 'todo' ? 'doing' : step.status === 'doing' ? 'done' : 'todo';
+      const nextStatus = step.status === "todo" ? "doing" : step.status === "doing" ? "done" : "todo";
       return { ...step, status: nextStatus };
     });
     updateProfile(ownerId, () => ({ roadmap: updatedRoadmap }));
+  };
+
+  const unlockRoadmap = () => {
+    if (!currentUser || currentUser.role !== "student") {
+      return { ok: false, message: "Chỉ học sinh mới mở khóa lộ trình." };
+    }
+    const profile = findProfile(currentUser.id);
+    if (!profile) {
+      return { ok: false, message: "Không tìm thấy hồ sơ học sinh." };
+    }
+    if (profile.roadmapUnlocked) {
+      return { ok: true, message: "Lộ trình đã mở sẵn." };
+    }
+    const roadmap = buildFullRoadmap(profile);
+    updateProfile(currentUser.id, () => ({
+      roadmapUnlocked: true,
+      roadmapUnlockedAt: new Date().toISOString(),
+      roadmap,
+    }));
+    return { ok: true };
   };
 
   const saveUniversityPreference = (ownerId, universityId) => {
@@ -312,19 +325,18 @@ export const AppProvider = ({ children }) => {
     if (!trimmed) return;
     const thread = state.chatThreads[currentUser.id] || [];
     const userMsg = {
-      id: idFactory('msg'),
-      sender: 'user',
+      id: idFactory("msg"),
+      sender: "user",
       body: trimmed,
       timestamp: new Date().toISOString(),
     };
     const keywordMatch =
-      keywordsReply.find((item) => trimmed.toLowerCase().includes(item.keyword)) ||
-      {
-        reply: 'Cảm ơn bạn! Cố vấn EduPath sẽ phản hồi chi tiết trong vòng 24h.',
+      keywordsReply.find((item) => trimmed.toLowerCase().includes(item.keyword)) || {
+        reply: "Cảm ơn bạn! Cố vấn EduPath sẽ phản hồi chi tiết trong 24 giờ.",
       };
     const botMsg = {
-      id: idFactory('msg'),
-      sender: 'bot',
+      id: idFactory("msg"),
+      sender: "bot",
       body: keywordMatch.reply,
       timestamp: new Date().toISOString(),
     };
@@ -354,6 +366,7 @@ export const AppProvider = ({ children }) => {
     linkParentToStudent,
     submitAssessment,
     toggleRoadmapStep,
+    unlockRoadmap,
     saveUniversityPreference,
     getRecommendation,
     getLinkedStudentForParent,
@@ -366,6 +379,6 @@ export const AppProvider = ({ children }) => {
 
 export const useApp = () => {
   const context = useContext(AppContext);
-  if (!context) throw new Error('useApp must be used inside AppProvider');
+  if (!context) throw new Error("useApp must be used inside AppProvider");
   return context;
 };

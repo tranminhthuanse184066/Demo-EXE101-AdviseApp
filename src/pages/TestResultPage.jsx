@@ -1,11 +1,13 @@
-import { useMemo } from 'react';
+﻿import { Button, Card, Col, Empty, Progress, Row, Space, Tag } from 'antd';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
 
 const TestResultPage = () => {
-  const { currentUser, findProfile, findTestResult, majorGroups, universities, getRecommendation } = useApp();
+  const { currentUser, findProfile, findTestResult, majorGroups, universities, getRecommendation, unlockRoadmap } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
+  const [error, setError] = useState('');
 
   const profile = currentUser ? findProfile(currentUser.id) : null;
   const result = currentUser ? findTestResult(currentUser.id) : null;
@@ -13,7 +15,20 @@ const TestResultPage = () => {
 
   const scores = useMemo(() => {
     if (!result?.scoresJson) return [];
-    return Object.entries(JSON.parse(result.scoresJson));
+    try {
+      return Object.entries(JSON.parse(result.scoresJson));
+    } catch {
+      return [];
+    }
+  }, [result]);
+
+  const scoreLabels = useMemo(() => {
+    if (!result?.scoreLabelsJson) return {};
+    try {
+      return JSON.parse(result.scoreLabelsJson);
+    } catch {
+      return {};
+    }
   }, [result]);
 
   const topMajors = useMemo(
@@ -39,110 +54,113 @@ const TestResultPage = () => {
 
   if (!currentUser || !result) {
     return (
-      <section className="test-result">
-        <p>Chưa có dữ liệu trắc nghiệm. Hãy làm bài test để xem gợi ý.</p>
-        <button className="primary" type="button" onClick={() => navigate('/take-test')}>
-          Làm trắc nghiệm
-        </button>
-      </section>
+      <Card bordered={false} className="shadow-lg">
+        <Empty description="Làm một bài test để xem gợi ý" />
+        <Button type="primary" shape="round" className="mt-4" onClick={() => navigate('/take-test')}>
+          Làm test ngay
+        </Button>
+      </Card>
     );
   }
 
+  const handleUnlock = () => {
+    setError('');
+    const res = unlockRoadmap();
+    if (!res?.ok) {
+      setError(res?.message || 'Không mở lộ trình được lúc này.');
+      return;
+    }
+    navigate('/roadmap');
+  };
+
   return (
-    <section className={`test-result ${location.state?.highlight ? 'highlight' : ''}`}>
-      <header>
-        <h2>Kết quả trắc nghiệm của bạn</h2>
-        <p>
-          Hồ sơ {currentUser.fullName} · Điểm TB hiện tại {profile?.avgScore || '--'} · Tổ hợp{' '}
-          {profile?.stream || '--'}
-        </p>
-      </header>
-
-      <div className="result-summary">
-        <div>
-          <span>Trait summary</span>
-          <h1>{result.traitSummary}</h1>
-        </div>
-        <div>
-          <span>Top nhóm ngành</span>
-          <div className="tag-row">
-            {topMajors.map((major) => (
-              <span key={major.code} className="tag">
-                {major.name}
-              </span>
-            ))}
+    <Space direction="vertical" size="large" className="w-full">
+      <Card bordered={false} className="shadow-xl" bodyStyle={{ padding: '2rem' }}>
+        <Space direction="vertical" size="middle" className="w-full">
+          <Space size="middle" wrap>
+            <Tag color="blue">{result.testLabel}</Tag>
+            <Tag color="purple">GPA {profile?.avgScore || '--'}</Tag>
+            <Tag color="green">Tổ hợp {profile?.stream || '--'}</Tag>
+          </Space>
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Bộ chữ cái</p>
+              <h1 className="text-4xl font-semibold text-slate-900">{result.traitSummary}</h1>
+            </div>
+            <Space size="small" wrap>
+              {topMajors.map((major) => (
+                <Tag key={major.code} color="success">
+                  {major.name}
+                </Tag>
+              ))}
+            </Space>
           </div>
-        </div>
-      </div>
+        </Space>
+      </Card>
 
-      <article className="panel">
-        <header>
-          <h3>Điểm từng nhóm RIASEC</h3>
-        </header>
-        <ul className="score-list">
+      {recommendation && (
+        <Card bordered={false} className="shadow-lg bg-blue-50" bodyStyle={{ padding: '1.5rem' }}>
+          <p className="text-sm text-blue-700">{recommendation.explanation}</p>
+        </Card>
+      )}
+
+      <Card title="Phân bổ điểm" bordered={false} className="shadow-lg">
+        <Space direction="vertical" size="large" className="w-full">
           {scores.map(([trait, value]) => (
-            <li key={trait}>
-              <span>{trait}</span>
-              <progress max="12" value={value}></progress>
-              <strong>{value}</strong>
-            </li>
-          ))}
-        </ul>
-      </article>
-
-      <article className="panel">
-        <header>
-          <h3>Gợi ý ngành nghề</h3>
-        </header>
-        <div className="grid-3">
-          {topMajors.map((major) => (
-            <div key={major.code} className="info-card">
-              <h4>{major.name}</h4>
-              <p>{major.shortDesc}</p>
+            <div key={trait} className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <span className="text-sm font-medium text-slate-600">{scoreLabels[trait] || trait}</span>
+              <Progress percent={Math.round(((Number(value) || 0) / 12) * 100)} showInfo={false} className="w-full md:w-1/2" />
+              <span className="text-lg font-semibold text-slate-900">{value}</span>
             </div>
           ))}
-        </div>
-        {recommendation && <p className="small-note">{recommendation.explanation}</p>}
-      </article>
+        </Space>
+      </Card>
 
-      <article className="panel">
-        <header>
-          <h3>Top trường đề xuất</h3>
-        </header>
+      <Card title="Ngành nên khám phá" bordered={false} className="shadow-lg">
+        <Row gutter={[16, 16]}>
+          {topMajors.map((major) => (
+            <Col xs={24} md={8} key={major.code}>
+              <Card bordered={false} className="h-full bg-slate-900 text-white">
+                <p className="text-lg font-semibold">{major.name}</p>
+                <p className="mt-2 text-sm text-white/70">{major.shortDesc}</p>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </Card>
+
+      <Card title="Trường phù hợp" bordered={false} className="shadow-lg">
         {suggestedUniversities.length ? (
-          <div className="grid-3">
+          <Row gutter={[16, 16]}>
             {suggestedUniversities.map((uni) => (
-              <div key={uni.id} className="info-card">
-                <h4>{uni.name}</h4>
-                <p>
-                  {uni.city} · Điểm tối thiểu {uni.minScore}
-                </p>
-                <small>Học phí ~ {uni.tuitionPerYear} triệu/năm</small>
-              </div>
+              <Col xs={24} md={8} key={uni.id}>
+                <Card bordered={false} className="h-full border border-slate-100 shadow-sm">
+                  <p className="text-lg font-semibold text-slate-900">{uni.name}</p>
+                  <p className="text-sm text-slate-500">{uni.city} - Điểm chuẩn {uni.minScore}</p>
+                  <p className="text-xs text-slate-400">Học phí ước tính {uni.tuitionPerYear} triệu/năm</p>
+                </Card>
+              </Col>
             ))}
-          </div>
+          </Row>
         ) : (
-          <p>Chưa có trường phù hợp. Thử giảm điều kiện lọc.</p>
+          <Empty description="Hãy điều chỉnh bộ lọc để thấy thêm lựa chọn" />
         )}
-      </article>
+      </Card>
 
-      <div className="button-row">
-        <button className="secondary" type="button" onClick={() => navigate('/report?studentId=' + currentUser.id)}>
+      {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
+
+      <Space size="middle" wrap>
+        <Button shape="round" onClick={() => navigate(`/report?studentId=${currentUser.id}`)}>
           Tải PDF
-        </button>
-        <button
-          className="primary"
-          type="button"
-          onClick={() =>
-            navigate('/universities', {
-              state: { defaultMajors: result.topMajorGroupCodes },
-            })
-          }
-        >
-          Xem gợi ý trường
-        </button>
-      </div>
-    </section>
+        </Button>
+        <Button type="default" shape="round" onClick={() => navigate('/universities', { state: { defaultMajors: result.topMajorGroupCodes } })}>
+          Xem bản đồ trường
+        </Button>
+        <Button type="primary" shape="round" onClick={handleUnlock}>
+          {profile?.roadmapUnlocked ? 'Mở lộ trình' : 'Mở khóa lộ trình'}
+        </Button>
+      </Space>
+    </Space>
   );
 };
 

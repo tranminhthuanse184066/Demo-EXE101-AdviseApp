@@ -1,3 +1,4 @@
+﻿import { Button, Card, Col, Empty, Form, Input, Result, Row, Space, Tag } from 'antd';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
@@ -12,15 +13,15 @@ const ParentDashboard = () => {
     majorGroups,
     universities,
   } = useApp();
-  const [code, setCode] = useState('');
-  const [feedback, setFeedback] = useState('');
+  const [form] = Form.useForm();
+  const [feedback, setFeedback] = useState(null);
   const navigate = useNavigate();
 
   if (!currentUser || currentUser.role !== 'parent') {
     return (
-      <section className="parent-dashboard">
-        <p>Đăng nhập bằng tài khoản phụ huynh để sử dụng tính năng này.</p>
-      </section>
+      <Card bordered={false} className="shadow-lg">
+        <Result status="403" title="Dành riêng cho phụ huynh" subTitle="Sử dụng tài khoản phụ huynh để truy cập trang này." />
+      </Card>
     );
   }
 
@@ -31,123 +32,111 @@ const ParentDashboard = () => {
   const topMajors = useMemo(() => {
     if (!result) return [];
     return result.topMajorGroupCodes
-      .map((codeItem) => majorGroups.find((group) => group.code === codeItem))
+      .map((code) => majorGroups.find((group) => group.code === code))
       .filter(Boolean);
   }, [result, majorGroups]);
 
   const suggestedUniversities = useMemo(() => {
     if (!result) return [];
     return universities
-      .filter((uni) => uni.majors.some((codeItem) => result.topMajorGroupCodes.includes(codeItem)))
+      .filter((uni) => uni.majors.some((code) => result.topMajorGroupCodes.includes(code)))
       .slice(0, 3);
   }, [result, universities]);
 
-  const handleLink = (event) => {
-    event.preventDefault();
-    const res = linkParentToStudent(code);
+  const handleLink = (values) => {
+    const res = linkParentToStudent(values.code);
     if (!res?.ok) {
-      setFeedback(res.message);
+      setFeedback({ type: 'error', text: res.message });
       return;
     }
-    setFeedback(`Đã liên kết với ${res.student.fullName}`);
+    setFeedback({ type: 'success', text: `Đã liên kết với ${res.student.fullName}` });
+    form.resetFields();
   };
 
-  return (
-    <section className="parent-dashboard">
-      <header>
-        <h2>Trung tâm phụ huynh</h2>
-        <p>Theo dõi tiến độ con bạn và tải báo cáo PDF.</p>
-      </header>
-
-      {!linkedStudent ? (
-        <div className="panel icon-card link-card">
-          <span className="icon-bubble">🔗</span>
-          <form className="form" onSubmit={handleLink}>
-            <label>
-              Nhập mã liên kết do con cung cấp
-              <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} />
-            </label>
-            <button className="primary" type="submit">
-              Liên kết ngay
-            </button>
-            {feedback && <p className="form-message">{feedback}</p>}
-            <p className="small-note">Ví dụ: mã của Minh Anh là MA7285.</p>
-          </form>
-        </div>
-      ) : (
-        <>
-          <div className="panel profile-summary">
-            <div className="profile-head">
-              <img src={linkedStudent.avatar} alt={linkedStudent.fullName} />
-              <div>
-                <p className="eyebrow">Đang theo dõi</p>
-                <h3>{linkedStudent.fullName}</h3>
-                <p>Lớp {profile?.gradeLevel} · Điểm TB {profile?.avgScore}</p>
-              </div>
-            </div>
-            <div className="parent-badges">
-              <span className="icon-bubble">📘</span>
-              <div>
-                <p>Tổ hợp</p>
-                <strong>{profile?.stream}</strong>
-              </div>
-              <span className="icon-bubble">🧾</span>
-              <div>
-                <p>Mã phụ huynh</p>
-                <strong>{linkedStudent.linkedParentCode}</strong>
-              </div>
-            </div>
+  if (!linkedStudent) {
+    return (
+      <Card bordered={false} className="shadow-xl" bodyStyle={{ padding: '2.5rem' }}>
+        <Space direction="vertical" size="large" className="w-full">
+          <div>
+            <h2 className="text-2xl font-semibold text-slate-900">Kết nối gia đình</h2>
+            <p className="text-sm text-slate-500">Nhập mã do con gửi để xem dữ liệu học tập.</p>
           </div>
+          {feedback && <Result status={feedback.type === 'error' ? 'error' : 'success'} title={feedback.text} />}
+          <Form form={form} layout="vertical" onFinish={handleLink} requiredMark={false} className="w-full max-w-md">
+            <Form.Item name="code" label="Mã liên kết" rules={[{ required: true, message: 'Nhập mã 6 ký tự' }]}>
+              <Input size="large" placeholder="EDUP01" />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" shape="round" size="large">
+                Liên kết ngay
+              </Button>
+            </Form.Item>
+          </Form>
+          <p className="text-sm text-slate-400">Ví dụ: mã của tài khoản mẫu Minh Anh là EDUP01.</p>
+        </Space>
+      </Card>
+    );
+  }
 
-          <article className="panel icon-card">
-            <span className="icon-bubble">📊</span>
-            <header>
-              <h3>Kết quả trắc nghiệm</h3>
-            </header>
+  return (
+    <Space direction="vertical" size="large" className="w-full">
+      <Card bordered={false} className="shadow-xl" bodyStyle={{ padding: '2rem' }}>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <Space direction="vertical" size={2}>
+            <span className="text-sm text-slate-500">Đang theo dõi</span>
+            <h2 className="text-3xl font-semibold text-slate-900">{linkedStudent.fullName}</h2>
+            <Space size="small">
+              <Tag color="blue">Lớp {profile?.gradeLevel}</Tag>
+              <Tag color="green">GPA {profile?.avgScore}</Tag>
+              <Tag color="purple">Tổ hợp {profile?.stream}</Tag>
+            </Space>
+          </Space>
+          <Button shape="round" onClick={() => navigate(`/report?studentId=${linkedStudent.id}`)}>
+            Tải báo cáo PDF
+          </Button>
+        </div>
+      </Card>
+
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={12}>
+          <Card title="Bài test gần nhất" bordered={false} className="shadow-lg">
             {result ? (
-              <>
-                <p className="trait-highlight">{result.traitSummary}</p>
-                <div className="tag-row">
+              <Space direction="vertical" size="middle" className="w-full">
+                <Tag color="blue">{result.testLabel}</Tag>
+                <h3 className="text-2xl font-semibold text-slate-900">{result.traitSummary}</h3>
+                <Space size="small" wrap>
                   {topMajors.map((major) => (
-                    <span key={major.code} className="tag">
+                    <Tag key={major.code} color="success">
                       {major.name}
-                    </span>
+                    </Tag>
                   ))}
-                </div>
-              </>
+                </Space>
+              </Space>
             ) : (
-              <p>Học sinh chưa hoàn thành bài test.</p>
+              <Empty description="Học sinh chưa hoàn thành bài test" />
             )}
-          </article>
-
-          <article className="panel icon-card">
-            <span className="icon-bubble">🎓</span>
-            <header>
-              <h3>3 trường gợi ý</h3>
-            </header>
-            <div className="grid-3">
-              {suggestedUniversities.map((uni) => (
-                <div key={uni.id} className="info-card">
-                  <h4>{uni.name}</h4>
-                  <p>
-                    Điểm chuẩn {uni.minScore} · Học phí {uni.tuitionPerYear} triệu
-                  </p>
-                </div>
-              ))}
-            </div>
-          </article>
-
-          <button
-            className="secondary"
-            type="button"
-            onClick={() => navigate(`/report?studentId=${linkedStudent.id}`)}
-          >
-            Tải PDF report
-          </button>
-        </>
-      )}
-    </section>
+          </Card>
+        </Col>
+        <Col xs={24} md={12}>
+          <Card title="Top trường đề cử" bordered={false} className="shadow-lg">
+            {suggestedUniversities.length ? (
+              <Space direction="vertical" size="small" className="w-full">
+                {suggestedUniversities.map((uni) => (
+                  <div key={uni.id} className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                    <p className="text-lg font-semibold text-slate-900">{uni.name}</p>
+                    <p className="text-sm text-slate-500">{uni.city} - Điểm chuẩn {uni.minScore}</p>
+                  </div>
+                ))}
+              </Space>
+            ) : (
+              <Empty description="Chưa có dữ liệu đề xuất" />
+            )}
+          </Card>
+        </Col>
+      </Row>
+    </Space>
   );
 };
 
 export default ParentDashboard;
+

@@ -1,3 +1,4 @@
+﻿import { Alert, Button, Card, Form, Input, Select, Space, Tabs } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
@@ -5,207 +6,161 @@ import { useApp } from '../context/AppContext.jsx';
 const AuthPage = () => {
   const { signUp, logIn } = useApp();
   const [searchParams] = useSearchParams();
-  const [tab, setTab] = useState('login');
-  const [signupData, setSignupData] = useState({
-    role: 'student',
-    fullName: '',
-    email: '',
-    password: '',
-    gradeLevel: '',
-    stream: '',
-    avgScore: '',
-    interests: '',
-  });
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [message, setMessage] = useState('');
+  const [tabKey, setTabKey] = useState('login');
+  const [message, setMessage] = useState(null);
   const navigate = useNavigate();
+
+  const [signupForm] = Form.useForm();
+  const [loginForm] = Form.useForm();
 
   useEffect(() => {
     const preferredRole = searchParams.get('role');
     if (preferredRole === 'student' || preferredRole === 'parent') {
-      setSignupData((prev) => ({ ...prev, role: preferredRole }));
-      setTab('signup');
+      signupForm.setFieldsValue({ role: preferredRole });
+      setTabKey('signup');
     }
-  }, [searchParams]);
-
-  const handleSignup = (event) => {
-    event.preventDefault();
-    const payload = {
-      ...signupData,
-      avgScore: Number(signupData.avgScore),
-      interests: signupData.interests
-        .split(',')
-        .map((item) => item.trim())
-        .filter(Boolean),
-    };
-    const res = signUp(payload);
-    if (!res.ok) {
-      setMessage(res.message);
-      return;
-    }
-    const next = signupData.role === 'student' ? '/student' : '/parent';
-    setMessage(res.linkedParentCode ? `Mã liên kết phụ huynh của bạn: ${res.linkedParentCode}` : res.message);
-    navigate(next);
-  };
-
-  const handleLogin = (event) => {
-    event.preventDefault();
-    const res = logIn(loginData.email, loginData.password);
-    if (!res.ok) {
-      setMessage(res.message);
-      return;
-    }
-    setMessage('');
-    const destinations = {
-      parent: '/parent',
-      advisor: '/chat',
-      student: '/student',
-    };
-    navigate(destinations[res.user.role] || '/');
-  };
+  }, [searchParams, signupForm]);
 
   const demoAccounts = useMemo(
     () => [
-      { role: 'Học sinh', email: 'minhanh@student.edupath.vn', password: '123456' },
-      { role: 'Phụ huynh', email: 'thuha@parent.edupath.vn', password: '123456' },
+      { role: 'Học sinh', email: 'student@edupath.vn', password: '123456' },
+      { role: 'Phụ huynh', email: 'parent@edupath.vn', password: '123456' },
     ],
     [],
   );
 
+  const handleSignup = (values) => {
+    const payload = {
+      ...values,
+      avgScore: Number(values.avgScore),
+      interests: values.interests
+        ? values.interests.split(',').map((item) => item.trim()).filter(Boolean)
+        : [],
+    };
+    const res = signUp(payload);
+    if (!res.ok) {
+      setMessage({ type: 'error', text: res.message });
+      return;
+    }
+    setMessage({
+      type: 'success',
+      text: res.linkedParentCode
+        ? `Mã liên kết phụ huynh của bạn: ${res.linkedParentCode}`
+        : res.message,
+    });
+    navigate(payload.role === 'student' ? '/student' : '/parent');
+  };
+
+  const handleLogin = (values) => {
+    const res = logIn(values.email, values.password);
+    if (!res.ok) {
+      setMessage({ type: 'error', text: res.message });
+      return;
+    }
+    setMessage(null);
+    const routes = { student: '/student', parent: '/parent', advisor: '/chat' };
+    navigate(routes[res.user.role] || '/');
+  };
+
   return (
-    <section className="auth-page">
-      <div className="auth-card">
-        <div className="tab-row">
-          <button className={tab === 'login' ? 'active' : ''} type="button" onClick={() => setTab('login')}>
-            Đăng nhập
-          </button>
-          <button className={tab === 'signup' ? 'active' : ''} type="button" onClick={() => setTab('signup')}>
-            Đăng ký
-          </button>
-        </div>
+    <div className="flex w-full justify-center">
+      <Card className="w-full max-w-xl shadow-2xl" bordered={false}>
+        <Tabs
+          activeKey={tabKey}
+          onChange={setTabKey}
+          centered
+          items={[
+            { key: 'login', label: 'Đăng nhập', children: null },
+            { key: 'signup', label: 'Tạo tài khoản', children: null },
+          ]}
+        />
 
-        {message && <p className="form-message">{message}</p>}
+        {message && <Alert className="mb-6" type={message.type} message={message.text} showIcon />}
 
-        {tab === 'login' ? (
-          <form className="form" onSubmit={handleLogin}>
-            <label>
-              Email
-              <input
-                type="email"
-                required
-                value={loginData.email}
-                onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-              />
-            </label>
-            <label>
-              Mật khẩu
-              <input
-                type="password"
-                required
-                value={loginData.password}
-                onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-              />
-            </label>
-            <button className="primary" type="submit">
-              Đăng nhập
-            </button>
-            <div className="demo-box">
-              <p>Dùng thử nhanh:</p>
-              <ul>
+        {tabKey === 'login' ? (
+          <Form form={loginForm} layout="vertical" onFinish={handleLogin} requiredMark={false}>
+            <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email', message: 'Nhập email hợp lệ' }]}>
+              <Input size="large" placeholder="ban@example.com" />
+            </Form.Item>
+            <Form.Item name="password" label="Mật khẩu" rules={[{ required: true, message: 'Nhập mật khẩu' }]}>
+              <Input.Password size="large" placeholder="******" />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" block size="large" shape="round">
+                Đăng nhập
+              </Button>
+            </Form.Item>
+            <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              <p className="mb-2 font-medium">Tài khoản mẫu</p>
+              <Space direction="vertical" size={4}>
                 {demoAccounts.map((item) => (
-                  <li key={item.email}>
-                    <strong>{item.role}</strong>: {item.email} / {item.password}
-                  </li>
+                  <span key={item.email} className="flex items-center justify-between">
+                    <strong>{item.role}</strong>
+                    <span>
+                      {item.email} / {item.password}
+                    </span>
+                  </span>
                 ))}
-              </ul>
+              </Space>
             </div>
-          </form>
+          </Form>
         ) : (
-          <form className="form" onSubmit={handleSignup}>
-            <label>
-              Vai trò
-              <select
-                value={signupData.role}
-                onChange={(e) => setSignupData({ ...signupData, role: e.target.value })}
-              >
-                <option value="student">Học sinh</option>
-                <option value="parent">Phụ huynh</option>
-              </select>
-            </label>
-            <label>
-              Họ tên
-              <input
-                type="text"
-                required
-                value={signupData.fullName}
-                onChange={(e) => setSignupData({ ...signupData, fullName: e.target.value })}
+          <Form
+            form={signupForm}
+            layout="vertical"
+            onFinish={handleSignup}
+            initialValues={{ role: 'student' }}
+            requiredMark={false}
+          >
+            <Form.Item name="role" label="Vai trò" rules={[{ required: true, message: 'Chọn vai trò' }]}>
+              <Select
+                size="large"
+                options={[
+                  { value: 'student', label: 'Học sinh' },
+                  { value: 'parent', label: 'Phụ huynh' },
+                ]}
               />
-            </label>
-            <label>
-              Email
-              <input
-                type="email"
-                required
-                value={signupData.email}
-                onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-              />
-            </label>
-            <label>
-              Mật khẩu
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={signupData.password}
-                onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-              />
-            </label>
-            {signupData.role === 'student' && (
-              <>
-                <div className="two-cols">
-                  <label>
-                    Khối lớp
-                    <input
-                      type="text"
-                      value={signupData.gradeLevel}
-                      onChange={(e) => setSignupData({ ...signupData, gradeLevel: e.target.value })}
-                    />
-                  </label>
-                  <label>
-                    Tổ hợp xét tuyển
-                    <input
-                      type="text"
-                      value={signupData.stream}
-                      onChange={(e) => setSignupData({ ...signupData, stream: e.target.value })}
-                    />
-                  </label>
-                </div>
-                <label>
-                  Điểm TB học kỳ (ước tính)
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={signupData.avgScore}
-                    onChange={(e) => setSignupData({ ...signupData, avgScore: e.target.value })}
-                  />
-                </label>
-                <label>
-                  Sở thích / hoạt động (cách nhau bằng dấu phẩy)
-                  <input
-                    type="text"
-                    value={signupData.interests}
-                    onChange={(e) => setSignupData({ ...signupData, interests: e.target.value })}
-                  />
-                </label>
-              </>
-            )}
-            <button className="primary" type="submit">
-              Tạo tài khoản
-            </button>
-          </form>
+            </Form.Item>
+            <Form.Item name="fullName" label="Họ và tên" rules={[{ required: true, message: 'Nhập họ tên' }]}>
+              <Input size="large" placeholder="Nguyễn Minh Anh" />
+            </Form.Item>
+            <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email', message: 'Nhập email hợp lệ' }]}>
+              <Input size="large" placeholder="ban@example.com" />
+            </Form.Item>
+            <Form.Item name="password" label="Mật khẩu" rules={[{ required: true, min: 6, message: 'Ít nhất 6 ký tự' }]}>
+              <Input.Password size="large" placeholder="******" />
+            </Form.Item>
+
+            <Form.Item noStyle shouldUpdate={(prev, next) => prev.role !== next.role}>
+              {({ getFieldValue }) =>
+                getFieldValue('role') === 'student' ? (
+                  <Space direction="vertical" size="middle" className="w-full">
+                    <Form.Item name="gradeLevel" label="Khối lớp">
+                      <Input size="large" placeholder="11" />
+                    </Form.Item>
+                    <Form.Item name="stream" label="Tổ hợp xét tuyển">
+                      <Input size="large" placeholder="A00" />
+                    </Form.Item>
+                    <Form.Item name="avgScore" label="Điểm trung bình dự kiến">
+                      <Input size="large" type="number" step="0.1" placeholder="8.2" />
+                    </Form.Item>
+                    <Form.Item name="interests" label="Sở thích / hoạt động (cách nhau bằng dấu phẩy)">
+                      <Input size="large" placeholder="STEM, MC" />
+                    </Form.Item>
+                  </Space>
+                ) : null
+              }
+            </Form.Item>
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit" block size="large" shape="round">
+                Tạo tài khoản
+              </Button>
+            </Form.Item>
+          </Form>
         )}
-      </div>
-    </section>
+      </Card>
+    </div>
   );
 };
 
