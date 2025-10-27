@@ -1,8 +1,9 @@
-﻿import { Layout, Button, Space, Tooltip } from 'antd';
+import { Layout, Button, Space, Tooltip } from 'antd';
 import {
   CompassOutlined,
   ExperimentOutlined,
   HomeOutlined,
+  RobotOutlined,
   RocketOutlined,
   TeamOutlined,
   UserOutlined,
@@ -28,20 +29,24 @@ const Header = () => {
           { to: '/take-test', icon: <ExperimentOutlined />, label: 'Bài test' },
           { to: '/universities', icon: <CompassOutlined />, label: 'Trường học' },
           { to: '/roadmap', icon: <RocketOutlined />, label: 'Lộ trình' },
+          { to: '/ai-coach', icon: <RobotOutlined />, label: 'AI Coach' },
         ]
       : currentUser.role === 'parent'
         ? [
             { to: '/parent', icon: <HomeOutlined />, label: 'Bảng phụ huynh' },
             { to: '/universities', icon: <CompassOutlined />, label: 'Trường học' },
+            { to: '/ai-coach', icon: <RobotOutlined />, label: 'AI Coach' },
             { to: '/chat', icon: <TeamOutlined />, label: 'Tin nhắn' },
           ]
         : [
             { to: '/chat', icon: <TeamOutlined />, label: 'Chat' },
+            { to: '/ai-coach', icon: <RobotOutlined />, label: 'AI Coach' },
             { to: '/universities', icon: <CompassOutlined />, label: 'Trường học' },
           ]
     : [
         { to: '/', icon: <HomeOutlined />, label: 'Trang chủ' },
         { to: '/take-test', icon: <ExperimentOutlined />, label: 'Làm thử' },
+        { to: '/ai-coach', icon: <RobotOutlined />, label: 'AI Coach' },
         { to: '/auth', icon: <UserOutlined />, label: 'Đăng nhập' },
       ];
 

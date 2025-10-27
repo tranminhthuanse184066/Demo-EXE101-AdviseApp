@@ -6,7 +6,7 @@ const Footer = () => (
     <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-4 text-sm text-slate-500 sm:flex-row sm:items-center">
       <Space size="middle">
         <span className="font-semibold text-slate-700">EduPath Next</span>
-        <span>Dong hanh dinh huong hoc sinh Viet</span>
+        <span>Đồng hành định hướng học sinh Việt</span>
       </Space>
       <Space size="large">
         <span className="flex items-center gap-2"><MailOutlined /> support@edupath.vn</span>

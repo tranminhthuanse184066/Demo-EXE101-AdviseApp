@@ -101,56 +101,56 @@ export const assessmentCatalog = [
     questions: [
       {
         id: "riasec-1",
-        prompt: "Cuoi tuan ranh ban thich lam gi nhat?",
+        prompt: "Cuối tuần rảnh bạn thích làm gì nhất?",
         options: [
-          { value: "R", label: "Lap robot mini hoac sua do" },
-          { value: "A", label: "Thiet ke poster, ve minh hoa" },
-          { value: "S", label: "Di tinh nguyen hoac ho tro nguoi khac" },
+          { value: "R", label: "Lắp robot mini hoặc sửa đồ" },
+          { value: "A", label: "Thiết kế poster, vẽ minh họa" },
+          { value: "S", label: "Đi tình nguyện hoặc hỗ trợ người khác" },
         ],
       },
       {
         id: "riasec-2",
-        prompt: "Khi gap bai tap kho, ban xu ly the nao?",
+        prompt: "Khi gặp bài tập khó, bạn xử lý thế nào?",
         options: [
-          { value: "I", label: "Tim tai lieu, phan tich nguyen nhan" },
-          { value: "C", label: "Lam theo quy trinh ro rang" },
-          { value: "E", label: "Keu goi nhom cung brainstorm" },
+          { value: "I", label: "Tìm tài liệu, phân tích nguyên nhân" },
+          { value: "C", label: "Làm theo quy trình rõ ràng" },
+          { value: "E", label: "Kêu gọi nhóm cùng brainstorm" },
         ],
       },
       {
         id: "riasec-3",
-        prompt: "Ky nang khien ban tu tin nhat la gi?",
+        prompt: "Kỹ năng khiến bạn tự tin nhất là gì?",
         options: [
-          { value: "S", label: "Lang nghe va khich le" },
-          { value: "R", label: "Thuc hanh, sua chua chinh xac" },
-          { value: "A", label: "Ke chuyen bang hinh anh" },
+          { value: "S", label: "Lắng nghe và khích lệ" },
+          { value: "R", label: "Thực hành, sửa chữa chính xác" },
+          { value: "A", label: "Kể chuyện bằng hình ảnh" },
         ],
       },
       {
         id: "riasec-4",
-        prompt: "Muc tieu ngan han trong nam hoc toi?",
+        prompt: "Mục tiêu ngắn hạn trong năm học tới?",
         options: [
-          { value: "E", label: "Dan dat du an kinh doanh mini" },
-          { value: "I", label: "Tham gia cuoc thi khoa hoc ky thuat" },
-          { value: "C", label: "Sap xep hoc tap that ky luat" },
+          { value: "E", label: "Dẫn dắt dự án kinh doanh mini" },
+          { value: "I", label: "Tham gia cuộc thi khoa học kỹ thuật" },
+          { value: "C", label: "Sắp xếp học tập thật kỷ luật" },
         ],
       },
       {
         id: "riasec-5",
-        prompt: "Ban muon them hoat dong cau lac bo nao?",
+        prompt: "Bạn muốn thêm hoạt động câu lạc bộ nào?",
         options: [
-          { value: "A", label: "Am nhac, nghe thuat" },
-          { value: "R", label: "Mo hinh ky thuat" },
-          { value: "S", label: "Tu van - ho tro tan sinh" },
+          { value: "A", label: "Âm nhạc, nghệ thuật" },
+          { value: "R", label: "Mô hình kỹ thuật" },
+          { value: "S", label: "Tư vấn - hỗ trợ tân sinh" },
         ],
       },
       {
         id: "riasec-6",
-        prompt: "Trong nhom, vai tro phu hop nhat voi ban?",
+        prompt: "Trong nhóm, vai trò phù hợp nhất với bạn?",
         options: [
-          { value: "C", label: "Len ke hoach, kiem soat tien do" },
-          { value: "E", label: "Thuyet phuc, trinh bay ket qua" },
-          { value: "I", label: "Phan tich so lieu, nghien cuu" },
+          { value: "C", label: "Lên kế hoạch, kiểm soát tiến độ" },
+          { value: "E", label: "Thuyết phục, trình bày kết quả" },
+          { value: "I", label: "Phân tích số liệu, nghiên cứu" },
         ],
       },
     ],
@@ -164,7 +164,7 @@ export const assessmentCatalog = [
       const { traitSummary, topMajorGroupCodes } = fromRiasecScores(scores);
       return {
         traitSummary,
-        summary: `Ban noi bat o nhom ${traitSummary} theo mo hinh Holland.`,
+        summary: `Bạn nổi bật ở nhóm ${traitSummary} theo mô hình Holland.`,
         scores,
         scoreLabels: {
           R: "Realistic",
@@ -175,8 +175,8 @@ export const assessmentCatalog = [
           C: "Conventional",
         },
         insights: [
-          "Chon CLB hoac mon tu chon bam sat hai chu cai cao nhat.",
-          "Ghi lai du an, cuoc thi lien quan de dua vao ho so xet tuyen.",
+          "Chọn CLB hoặc môn tự chọn bám sát hai chữ cái cao nhất.",
+          "Ghi lại dự án, cuộc thi liên quan để đưa vào hồ sơ xét tuyển.",
         ],
         topMajorGroupCodes,
         testLabel: "Holland RIASEC",
@@ -186,8 +186,10 @@ export const assessmentCatalog = [
   {
     id: "mbti",
     shortLabel: "MBTI",
-    name: "MBTI dinh huong nghe",
-    description: "Do 4 cap tinh cach MBTI de hieu moi truong hoc tap va lam viec hop gu.",
+    name: "MBTI định hướng nghề nghiệp",
+    tagline: "Khám phá nhóm tính cách MBTI và phong cách học tập phù hợp.",
+    description: "Đo 4 cặp tính cách MBTI để hiểu môi trường học tập và làm việc hợp gu.",
+    coverImage: mbtiCover,
     scoreLabels: {
       I: "Introversion",
       E: "Extraversion",
@@ -201,66 +203,66 @@ export const assessmentCatalog = [
     questions: [
       {
         id: "mbti-1",
-        prompt: "Ban nap lai nang luong bang cach nao?",
+        prompt: "Bạn nạp lại năng lượng bằng cách nào?",
         options: [
-          { value: "I", label: "O nha doc sach, lam viec mot minh" },
-          { value: "E", label: "Di choi, gap go ban be" },
+          { value: "I", label: "Ở nhà đọc sách, làm việc một mình" },
+          { value: "E", label: "Đi chơi, gặp gỡ bạn bè" },
         ],
       },
       {
         id: "mbti-2",
-        prompt: "Khi hoc kien thuc moi, ban chu y toi dieu gi?",
+        prompt: "Khi học kiến thức mới, bạn chú ý tới điều gì?",
         options: [
-          { value: "S", label: "Chi tiet cu the, vi du thuc te" },
-          { value: "N", label: "Y nghia va xu huong tuong lai" },
+          { value: "S", label: "Chi tiết cụ thể, ví dụ thực tế" },
+          { value: "N", label: "Ý nghĩa và xu hướng tương lai" },
         ],
       },
       {
         id: "mbti-3",
-        prompt: "Trong tranh luan, ban thuong dua vao dau?",
+        prompt: "Trong tranh luận, bạn thường dựa vào đâu?",
         options: [
-          { value: "T", label: "Ly le va du kien" },
-          { value: "F", label: "Cam xuc va gia tri" },
+          { value: "T", label: "Lý lẽ và dự kiến" },
+          { value: "F", label: "Cảm xúc và giá trị" },
         ],
       },
       {
         id: "mbti-4",
-        prompt: "Doi voi deadline, ban thuong:",
+        prompt: "Đối với deadline, bạn thường:",
         options: [
-          { value: "J", label: "Lap ke hoach chi tiet va bam sat" },
-          { value: "P", label: "Linh hoat ung bien, thich tu do" },
+          { value: "J", label: "Lập kế hoạch chi tiết và bám sát" },
+          { value: "P", label: "Linh hoạt ứng biến, thích tự do" },
         ],
       },
       {
         id: "mbti-5",
-        prompt: "Hoat dong ngoai khoa yeu thich?",
+        prompt: "Hoạt động ngoại khóa yêu thích?",
         options: [
-          { value: "E", label: "Su kien dong nguoi, day thu thach" },
-          { value: "I", label: "Du an nghien cuu nho" },
+          { value: "E", label: "Sự kiện đông người, đầy thử thách" },
+          { value: "I", label: "Dự án nghiên cứu nhỏ" },
         ],
       },
       {
         id: "mbti-6",
-        prompt: "Khi giai quyet van de, ban khoi dong bang:",
+        prompt: "Khi giải quyết vấn đề, bạn khởi động bằng:",
         options: [
-          { value: "N", label: "Phac hoa y tuong" },
-          { value: "S", label: "Thu thap so lieu ro rang" },
+          { value: "N", label: "Phác họa ý tưởng" },
+          { value: "S", label: "Thu thập số liệu rõ ràng" },
         ],
       },
       {
         id: "mbti-7",
-        prompt: "Ban danh gia cao dieu gi trong doi nhom?",
+        prompt: "Bạn đánh giá cao điều gì trong đội nhóm?",
         options: [
-          { value: "F", label: "Khong khi hoa dong, ho tro nhau" },
-          { value: "T", label: "Hieu qua va ket qua cuoi" },
+          { value: "F", label: "Không khí hòa đồng, hỗ trợ nhau" },
+          { value: "T", label: "Hiệu quả và kết quả cuối" },
         ],
       },
       {
         id: "mbti-8",
-        prompt: "Cuoi tuan ban chon ke hoach the nao?",
+        prompt: "Cuối tuần bạn chọn kế hoạch thế nào?",
         options: [
-          { value: "J", label: "Chuan bi truoc, co lich cu the" },
-          { value: "P", label: "De mo, tuy hung luc do" },
+          { value: "J", label: "Chuẩn bị trước, có lịch cụ thể" },
+          { value: "P", label: "Dễ mở, tùy hứng lúc đó" },
         ],
       },
     ],
@@ -273,11 +275,11 @@ export const assessmentCatalog = [
         counters.T >= counters.F ? "T" : "F"
       }${counters.J >= counters.P ? "J" : "P"}`;
       const majors = mapMbtiToMajors(code);
+      const structureNote = counters.J >= counters.P ? "có cấu trúc rõ ràng" : "linh hoạt sáng tạo";
+      const focusNote = counters.N >= counters.S ? "hướng tương lai" : "thực tế";
       return {
         traitSummary: code,
-        summary: `Ban mang xu huong ${code}, hay tim moi truong hoc tap ${
-          counters.J >= counters.P ? "co cau truc ro rang" : "linh hoat sang tao"
-        } va dang tac dong ${counters.N >= counters.S ? "nhin xa" : "thuc te"}.`,
+        summary: `Bạn mang xu hướng ${code}, hợp môi trường học tập ${structureNote} và phong cách làm việc ${focusNote}.`,
         scores: counters,
         scoreLabels: {
           I: "Introversion",
@@ -290,8 +292,8 @@ export const assessmentCatalog = [
           P: "Perceiving",
         },
         insights: [
-          "Uu tien hoat dong giup ban phat huy diem manh tung cap tinh cach.",
-          "Ket hop MBTI voi RIASEC de nhin ro nghe phu hop.",
+          "Ưu tiên hoạt động giúp bạn phát huy điểm mạnh từng cặp tính cách.",
+          "Kết hợp MBTI với RIASEC để nhìn rõ nghề phù hợp.",
         ],
         topMajorGroupCodes: majors,
         testLabel: "MBTI Career",
@@ -306,66 +308,66 @@ export const assessmentCatalog = [
     description: "Đo động lực nội tại và sở thích công việc để chọn đường dài hạn.",
     coverImage: mappCover,
     scoreLabels: {
-      Builder: "Thuc thi ky thuat",
-      Helper: "Ho tro con nguoi",
-      Thinker: "Phan tich logic",
-      Persuader: "Anh huong & kinh doanh",
-      Planner: "To chuc he thong",
-      Creator: "Sang tao noi dung",
+      Builder: "Thực thi kỹ thuật",
+      Helper: "Hỗ trợ con người",
+      Thinker: "Phân tích logic",
+      Persuader: "Ảnh hưởng & kinh doanh",
+      Planner: "Tổ chức hệ thống",
+      Creator: "Sáng tạo nội dung",
     },
     questions: [
       {
         id: "mapp-1",
-        prompt: "Trong du an khoa hoc, ban muon nhan viec gi?",
+        prompt: "Trong dự án khoa học, bạn muốn nhận việc gì?",
         options: [
-          { value: "Builder", label: "Thu nghiem, lap rap, thao tac" },
-          { value: "Thinker", label: "Phan tich ket qua, viet bao cao" },
-          { value: "Persuader", label: "Trinh bay, goi tai tro" },
+          { value: "Builder", label: "Thử nghiệm, lắp ráp, thao tác" },
+          { value: "Thinker", label: "Phân tích kết quả, viết báo cáo" },
+          { value: "Persuader", label: "Trình bày, gọi tài trợ" },
         ],
       },
       {
         id: "mapp-2",
-        prompt: "Lop can ho tro, ban san sang lam gi?",
+        prompt: "Lớp cần hỗ trợ, bạn sẵn sàng làm gì?",
         options: [
-          { value: "Planner", label: "Lap bang theo doi, phan cong" },
-          { value: "Helper", label: "Dong vien va kem tung ban" },
-          { value: "Creator", label: "Thiet ke thong diep truyen cam hung" },
+          { value: "Planner", label: "Lập bảng theo dõi, phân công" },
+          { value: "Helper", label: "Động viên và kèm từng bạn" },
+          { value: "Creator", label: "Thiết kế thông điệp truyền cảm hứng" },
         ],
       },
       {
         id: "mapp-3",
-        prompt: "Khi du an gap loi, phan ung dau tien cua ban la?",
+        prompt: "Khi dự án gặp lỗi, phản ứng đầu tiên của bạn là?",
         options: [
-          { value: "Builder", label: "Lam lai tung buoc de tim nguyen nhan" },
-          { value: "Thinker", label: "Doi chieu du lieu de tim mau thuan" },
-          { value: "Helper", label: "Noi chuyen de ho tro tung thanh vien" },
+          { value: "Builder", label: "Làm lại từng bước để tìm nguyên nhân" },
+          { value: "Thinker", label: "Đối chiếu dữ liệu để tìm mâu thuẫn" },
+          { value: "Helper", label: "Nói chuyện để hỗ trợ từng thành viên" },
         ],
       },
       {
         id: "mapp-4",
-        prompt: "Thanh cong nao khien ban tu hao?",
+        prompt: "Thành công nào khiến bạn tự hào?",
         options: [
-          { value: "Persuader", label: "Thuyet phuc duoc tai tro/hop tac" },
-          { value: "Creator", label: "Tao san pham truyen thong noi bat" },
-          { value: "Planner", label: "Van hanh du an dung tien do" },
+          { value: "Persuader", label: "Thuyết phục được tài trợ/hợp tác" },
+          { value: "Creator", label: "Tạo sản phẩm truyền thông nổi bật" },
+          { value: "Planner", label: "Vận hành dự án đúng tiến độ" },
         ],
       },
       {
         id: "mapp-5",
-        prompt: "Neu dan dat cuoc hop, ban uu tien dieu gi?",
+        prompt: "Nếu dẫn dắt cuộc họp, bạn ưu tiên điều gì?",
         options: [
-          { value: "Helper", label: "Giu tinh than nhom tich cuc" },
-          { value: "Persuader", label: "Dinh huong ket qua ro rang" },
-          { value: "Thinker", label: "Kiem soat thong tin va so lieu" },
+          { value: "Helper", label: "Giữ tinh thần nhóm tích cực" },
+          { value: "Persuader", label: "Định hướng kết quả rõ ràng" },
+          { value: "Thinker", label: "Kiểm soát thông tin và số liệu" },
         ],
       },
       {
         id: "mapp-6",
-        prompt: "Truoc ky thi quan trong, ban se:",
+        prompt: "Trước kỳ thi quan trọng, bạn sẽ:",
         options: [
-          { value: "Planner", label: "Lap ke hoach on tap chi tiet" },
-          { value: "Builder", label: "Lam nhieu de thi mau" },
-          { value: "Creator", label: "Tom tat bang so do, infographics" },
+          { value: "Planner", label: "Lập kế hoạch ôn tập chi tiết" },
+          { value: "Builder", label: "Làm nhiều đề thi mẫu" },
+          { value: "Creator", label: "Tóm tắt bằng sơ đồ, infographics" },
         ],
       },
     ],
@@ -383,21 +385,24 @@ export const assessmentCatalog = [
       });
       const topTags = pickTop(Object.entries(scores));
       const majors = mapMappToMajors(scores);
+      const labelMap = {
+        Builder: "Thực thi kỹ thuật",
+        Helper: "Hỗ trợ con người",
+        Thinker: "Phân tích logic",
+        Persuader: "Ảnh hưởng & kinh doanh",
+        Planner: "Tổ chức hệ thống",
+        Creator: "Sáng tạo nội dung",
+      };
       return {
         traitSummary: topTags.map(([key]) => key.substring(0, 3).toUpperCase()).join("-"),
-        summary: `Dong luc manh nhat cua ban la ${topTags.map(([key]) => key.toLowerCase()).join(" va ")}.`,
+        summary: `Động lực mạnh nhất của bạn nằm ở ${topTags
+          .map(([key]) => labelMap[key].toLowerCase())
+          .join(" và ")}.`,
         scores,
-        scoreLabels: {
-          Builder: "Thuc thi ky thuat",
-          Helper: "Ho tro con nguoi",
-          Thinker: "Phan tich logic",
-          Persuader: "Anh huong & kinh doanh",
-          Planner: "To chuc he thong",
-          Creator: "Sang tao noi dung",
-        },
+        scoreLabels: labelMap,
         insights: [
-          "Sap xep hoat dong ngoai khoa bam sat nhom dong luc cao nhat.",
-          "Giu nang luong bang cach gan muc tieu cu the cho tung du an.",
+          "Sắp xếp hoạt động ngoại khóa bám sát nhóm động lực cao nhất.",
+          "Giữ năng lượng bằng cách gắn mục tiêu cụ thể cho từng dự án.",
         ],
         topMajorGroupCodes: majors,
         testLabel: "MAPP Motivation",
@@ -412,86 +417,86 @@ export const assessmentCatalog = [
     description: "Đo 8 loại trí thông minh để chọn môn học và hoạt động cân bằng.",
     coverImage: gardnerCover,
     scoreLabels: {
-      Linguistic: "Ngon ngu",
-      Logical: "Logic - Toan",
-      Spatial: "Khong gian",
-      Musical: "Am nhac",
-      Kinesthetic: "Van dong",
-      Interpersonal: "Giao tiep",
-      Intrapersonal: "Tu nhan thuc",
-      Naturalist: "Thien nhien",
+      Linguistic: "Ngôn ngữ",
+      Logical: "Logic - Toán",
+      Spatial: "Không gian",
+      Musical: "Âm nhạc",
+      Kinesthetic: "Vận động",
+      Interpersonal: "Giao tiếp",
+      Intrapersonal: "Tự nhận thức",
+      Naturalist: "Thiên nhiên",
     },
     questions: [
       {
         id: "gardner-1",
-        prompt: "Ban thuong dat diem cao nhat o mon nao?",
+        prompt: "Bạn thường đạt điểm cao nhất ở môn nào?",
         options: [
-          { value: "Linguistic", label: "Van, Ngoai ngu" },
-          { value: "Logical", label: "Toan, Ly" },
-          { value: "Spatial", label: "Ve, Thiet ke" },
+          { value: "Linguistic", label: "Văn, Ngoại ngữ" },
+          { value: "Logical", label: "Toán, Lý" },
+          { value: "Spatial", label: "Vẽ, Thiết kế" },
         ],
       },
       {
         id: "gardner-2",
-        prompt: "Hoat dong giai tri ban thich?",
+        prompt: "Hoạt động giải trí bạn thích?",
         options: [
-          { value: "Musical", label: "Nghe hoac choi nhac" },
-          { value: "Kinesthetic", label: "The thao, nhay mua" },
-          { value: "Intrapersonal", label: "Viet nhat ky, suy ngam" },
+          { value: "Musical", label: "Nghe hoặc chơi nhạc" },
+          { value: "Kinesthetic", label: "Thể thao, nhảy múa" },
+          { value: "Intrapersonal", label: "Viết nhật ký, suy ngẫm" },
         ],
       },
       {
         id: "gardner-3",
-        prompt: "Ban thay de dang nhat khi:",
+        prompt: "Bạn thấy dễ dàng nhất khi:",
         options: [
-          { value: "Interpersonal", label: "Lam viec cung nhieu nguoi" },
-          { value: "Logical", label: "Giai bai toan kho" },
-          { value: "Naturalist", label: "Cham soc cay, quan sat thien nhien" },
+          { value: "Interpersonal", label: "Làm việc cùng nhiều người" },
+          { value: "Logical", label: "Giải bài toán khó" },
+          { value: "Naturalist", label: "Chăm sóc cây, quan sát thiên nhiên" },
         ],
       },
       {
         id: "gardner-4",
-        prompt: "Trong nhom, ban hay dong gop bang viec gi?",
+        prompt: "Trong nhóm, bạn hay đóng góp bằng việc gì?",
         options: [
-          { value: "Spatial", label: "Ve so do, minh hoa" },
-          { value: "Linguistic", label: "Trinh bay noi dung ro rang" },
-          { value: "Interpersonal", label: "Ket noi va tao dong luc" },
+          { value: "Spatial", label: "Vẽ sơ đồ, minh họa" },
+          { value: "Linguistic", label: "Trình bày nội dung rõ ràng" },
+          { value: "Interpersonal", label: "Kết nối và tạo động lực" },
         ],
       },
       {
         id: "gardner-5",
-        prompt: "Ban nho bai tot nhat khi:",
+        prompt: "Bạn nhớ bài tốt nhất khi:",
         options: [
-          { value: "Kinesthetic", label: "Thuc hanh, lam mau" },
-          { value: "Musical", label: "Chuyen thanh giai dieu" },
-          { value: "Intrapersonal", label: "Lien he trai nghiem cua minh" },
+          { value: "Kinesthetic", label: "Thực hành, làm mẫu" },
+          { value: "Musical", label: "Chuyển thành giai điệu" },
+          { value: "Intrapersonal", label: "Liên hệ trải nghiệm của mình" },
         ],
       },
       {
         id: "gardner-6",
-        prompt: "Thoi khoa bieu ly tuong cua ban nen co:",
+        prompt: "Thời khóa biểu lý tưởng của bạn nên có:",
         options: [
-          { value: "Naturalist", label: "Hoat dong ngoai troi" },
-          { value: "Logical", label: "Giai nhieu cau hoi hoc bua" },
-          { value: "Linguistic", label: "Thuyet trinh hoac viet" },
+          { value: "Naturalist", label: "Hoạt động ngoài trời" },
+          { value: "Logical", label: "Giải nhiều câu hỏi hóc búa" },
+          { value: "Linguistic", label: "Thuyết trình hoặc viết" },
         ],
       },
       {
         id: "gardner-7",
-        prompt: "Cau nao giong ban nhat?",
+        prompt: "Câu nào giống bạn nhất?",
         options: [
-          { value: "Spatial", label: "Toi luon nhin thay buc tranh lon" },
-          { value: "Musical", label: "Toi nghi theo nhip dieu" },
-          { value: "Interpersonal", label: "Toi biet cach khich le moi nguoi" },
+          { value: "Spatial", label: "Tôi luôn nhìn thấy bức tranh lớn" },
+          { value: "Musical", label: "Tôi nghĩ theo nhịp điệu" },
+          { value: "Interpersonal", label: "Tôi biết cách khích lệ mọi người" },
         ],
       },
       {
         id: "gardner-8",
-        prompt: "Ban muon phat trien ky nang nao?",
+        prompt: "Bạn muốn phát triển kỹ năng nào?",
         options: [
-          { value: "Intrapersonal", label: "Quan ly cam xuc ca nhan" },
-          { value: "Naturalist", label: "Hieu he sinh thai" },
-          { value: "Linguistic", label: "Kha nang thuyet phuc" },
+          { value: "Intrapersonal", label: "Quản lý cảm xúc cá nhân" },
+          { value: "Naturalist", label: "Hiểu hệ sinh thái" },
+          { value: "Linguistic", label: "Khả năng thuyết phục" },
         ],
       },
     ],
@@ -511,23 +516,24 @@ export const assessmentCatalog = [
       });
       const topEntries = pickTop(Object.entries(scores), 3);
       const majors = mapGardnerToMajors(scores);
+      const labelMap = {
+        Linguistic: "Ngôn ngữ",
+        Logical: "Logic - Toán",
+        Spatial: "Không gian",
+        Musical: "Âm nhạc",
+        Kinesthetic: "Vận động",
+        Interpersonal: "Giao tiếp",
+        Intrapersonal: "Tự nhận thức",
+        Naturalist: "Thiên nhiên",
+      };
       return {
         traitSummary: topEntries.map(([key]) => key.slice(0, 3).toUpperCase()).join("-"),
-        summary: `Ban manh ve ${topEntries.map(([key]) => key.toLowerCase()).join(", ")} theo Gardner.`,
+        summary: `Bạn mạnh về ${topEntries.map(([key]) => labelMap[key].toLowerCase()).join(", ")} theo Gardner.`,
         scores,
-        scoreLabels: {
-          Linguistic: "Ngon ngu",
-          Logical: "Logic - Toan",
-          Spatial: "Khong gian",
-          Musical: "Am nhac",
-          Kinesthetic: "Van dong",
-          Interpersonal: "Giao tiep",
-          Intrapersonal: "Tu nhan thuc",
-          Naturalist: "Thien nhien",
-        },
+        scoreLabels: labelMap,
         insights: [
-          "Chon hoat dong ngoai khoa bo sung nhung tri thong minh con thap.",
-          "Dua diem manh vao ho so xet tuyen de tao dau an rieng.",
+          "Chọn hoạt động ngoại khóa bổ sung những trí thông minh còn thấp.",
+          "Đưa điểm mạnh vào hồ sơ xét tuyển để tạo dấu ấn riêng.",
         ],
         topMajorGroupCodes: majors,
         testLabel: "Multiple Intelligences",
@@ -535,6 +541,10 @@ export const assessmentCatalog = [
     },
   },
 ];
+
+
+
+
 
 
 

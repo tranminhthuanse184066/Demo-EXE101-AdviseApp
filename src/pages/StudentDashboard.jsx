@@ -84,7 +84,7 @@ const StudentDashboard = () => {
             <Space direction="vertical" size="middle" className="w-full">
               <Space size="large">
                 <Tag color="gold" icon={<StarFilled />}>Điểm nóng</Tag>
-                <span className="text-sm text-slate-500">Giữ GPA >= 8.0 mỗi học kỳ</span>
+                <span className="text-sm text-slate-500">Giữ GPA cao hơn 8.0 mỗi học kỳ</span>
               </Space>
               <Space size="small" wrap>
                 {(profile?.interests?.length ? profile.interests : ['Cập nhật sở thích']).map((chip) => (

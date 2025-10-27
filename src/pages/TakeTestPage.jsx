@@ -1,25 +1,25 @@
-﻿import { Button, Card, Radio, Space, Tag } from 'antd';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useApp } from '../context/AppContext.jsx';
-import { assessmentCatalog } from '../data/assessments.js';
+﻿import { Button, Card, Empty, Radio, Space, Tag } from "antd";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useApp } from "../context/AppContext.jsx";
+import { assessmentCatalog } from "../data/assessments.js";
 
 const buildInitialAnswers = (questions) => {
   const map = {};
   questions.forEach((question) => {
-    map[question.id] = '';
+    map[question.id] = "";
   });
   return map;
 };
 
-const randomInitial = assessmentCatalog[Math.floor(Math.random() * assessmentCatalog.length)];
+const getRandomAssessment = () => assessmentCatalog[Math.floor(Math.random() * assessmentCatalog.length)];
 
 const TestCard = ({ test, active, onSelect }) => (
   <Card
     hoverable
     onClick={() => onSelect(test)}
-    className={`h-full overflow-hidden transition-all duration-200 ${active ? 'ring-2 ring-blue-500 shadow-lg' : 'border border-slate-200 hover:shadow-lg'}`}
-    bodyStyle={{ padding: '1.25rem' }}
+    className={`h-full overflow-hidden transition-all duration-200 ${active ? "ring-2 ring-blue-500 shadow-lg" : "border border-slate-200 hover:shadow-lg"}`}
+    bodyStyle={{ padding: "1.25rem" }}
   >
     <div className="flex h-full flex-col gap-4">
       <div className="relative rounded-2xl bg-slate-900 p-5 text-white">
@@ -30,7 +30,7 @@ const TestCard = ({ test, active, onSelect }) => (
         <h3 className="mt-4 text-lg font-semibold">{test.name}</h3>
         <p className="mt-1 text-sm text-white/70">{test.tagline}</p>
         <Button
-          type={active ? 'primary' : 'default'}
+          type={active ? "primary" : "default"}
           shape="round"
           block
           className="mt-4"
@@ -39,7 +39,7 @@ const TestCard = ({ test, active, onSelect }) => (
             onSelect(test);
           }}
         >
-          {active ? 'Đang chọn' : 'Bắt đầu'}
+          {active ? "Đang chọn" : "Bắt đầu"}
         </Button>
       </div>
       <div className="h-28 overflow-hidden rounded-2xl bg-slate-100">
@@ -53,21 +53,21 @@ const TakeTestPage = () => {
   const { submitAssessment } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedId, setSelectedId] = useState(randomInitial.id);
-  const [answers, setAnswers] = useState(() => buildInitialAnswers(randomInitial.questions));
-  const [error, setError] = useState('');
+  const [selectedId, setSelectedId] = useState(null);
+  const [answers, setAnswers] = useState({});
+  const [error, setError] = useState("");
   const questionSectionRef = useRef(null);
 
   const scrollToQuestions = () => {
     if (questionSectionRef.current) {
-      questionSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      questionSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
   const selectTest = (test) => {
     setSelectedId(test.id);
     setAnswers(buildInitialAnswers(test.questions));
-    setError('');
+    setError("");
     requestAnimationFrame(scrollToQuestions);
   };
 
@@ -81,49 +81,57 @@ const TakeTestPage = () => {
   }, [location.state]);
 
   const selectedTest = useMemo(
-    () => assessmentCatalog.find((item) => item.id === selectedId) || randomInitial,
+    () => assessmentCatalog.find((item) => item.id === selectedId) || null,
     [selectedId],
   );
 
   useEffect(() => {
-    // keep answers in sync when selected test changes via URL or default
-    setAnswers(buildInitialAnswers(selectedTest.questions));
+    if (selectedTest) {
+      setAnswers(buildInitialAnswers(selectedTest.questions));
+    } else {
+      setAnswers({});
+    }
   }, [selectedTest]);
 
   const progress = useMemo(() => {
+    if (!selectedTest) return 0;
     const filled = Object.values(answers).filter(Boolean).length;
     return Math.round((filled / selectedTest.questions.length) * 100);
-  }, [answers, selectedTest.questions.length]);
+  }, [answers, selectedTest]);
 
   const handleSubmit = () => {
+    if (!selectedTest) {
+      setError("Bạn hãy chọn một bài test trước khi gửi kết quả.");
+      return;
+    }
     const incomplete = selectedTest.questions.some((question) => !answers[question.id]);
     if (incomplete) {
-      setError('Bạn cần chọn đáp án cho tất cả câu hỏi.');
+      setError("Bạn cần chọn đáp án cho tất cả câu hỏi.");
       return;
     }
     const outcome = selectedTest.evaluate(answers);
     const res = submitAssessment({ ...outcome, testType: selectedTest.id, testLabel: selectedTest.name });
     if (!res?.ok) {
-      setError(res?.message || 'Không lưu được bài test lúc này.');
+      setError(res?.message || "Không lưu được bài test lúc này.");
       return;
     }
-    navigate('/test-result', { state: { highlight: true } });
+    navigate("/test-result", { state: { highlight: true } });
   };
 
   const handleShuffle = () => {
-    const next = assessmentCatalog[Math.floor(Math.random() * assessmentCatalog.length)];
+    const next = getRandomAssessment();
     selectTest(next);
   };
 
   return (
     <Space direction="vertical" size="large" className="w-full">
-      <Card bordered={false} className="shadow-lg" bodyStyle={{ padding: '2rem' }}>
+      <Card bordered={false} className="shadow-lg" bodyStyle={{ padding: "2rem" }}>
         <Space direction="vertical" size="large" className="w-full">
           <div className="flex flex-col gap-2">
             <Tag color="blue" className="w-fit rounded-full px-4 py-1 text-sm">Bộ test miễn phí</Tag>
             <h1 className="text-3xl font-semibold text-slate-900">Chọn bài test phù hợp</h1>
             <p className="max-w-2xl text-sm text-slate-500">
-              Bắt đầu với bài test bạn quan tâm, tất cả đều miễn phí và có thể hoàn thành ngay trong vài phút.
+              Bắt đầu với bài test bạn quan tâm, tất cả đều miễn phí và hoàn thành trong vài phút.
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -135,52 +143,65 @@ const TakeTestPage = () => {
       </Card>
 
       <div ref={questionSectionRef} className="w-full">
-        <Card bordered={false} className="shadow-lg" bodyStyle={{ padding: '2rem' }}>
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-col gap-2">
-              <Space size="small" wrap>
-                <Tag color="green">Miễn phí</Tag>
-                <Tag color="blue">{selectedTest.shortLabel}</Tag>
-              </Space>
-              <h2 className="text-2xl font-semibold text-slate-900">{selectedTest.name}</h2>
-              <p className="text-sm text-slate-500">{selectedTest.description}</p>
+        {selectedTest ? (
+          <Card bordered={false} className="shadow-lg" bodyStyle={{ padding: "2rem" }}>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-col gap-2">
+                <Space size="small" wrap>
+                  <Tag color="green">Miễn phí</Tag>
+                  <Tag color="blue">{selectedTest.shortLabel}</Tag>
+                </Space>
+                <h2 className="text-2xl font-semibold text-slate-900">{selectedTest.name}</h2>
+                <p className="text-sm text-slate-500">{selectedTest.description}</p>
+              </div>
+              <div className="flex flex-col items-start gap-2 md:items-end">
+                <span className="text-sm text-slate-500">Hoàn thành</span>
+                <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600">{progress}%</div>
+              </div>
             </div>
-            <div className="flex flex-col items-start gap-2 md:items-end">
-              <span className="text-sm text-slate-500">Hoàn thành</span>
-              <div className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600">{progress}%</div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      <Space direction="vertical" size="large" className="w-full">
-        {selectedTest.questions.map((question, index) => (
-          <Card
-            key={question.id}
-            className="border-none shadow-md"
-            title={`Câu ${index + 1}`}
-            extra={<Tag color={answers[question.id] ? 'green' : 'default'}>{answers[question.id] ? 'Đã chọn' : 'Chưa chọn'}</Tag>}
-          >
-            <Space direction="vertical" size="middle" className="w-full">
-              <p className="text-base font-medium text-slate-800">{question.prompt}</p>
-              <Radio.Group
-                onChange={(event) => {
-                  setAnswers((prev) => ({ ...prev, [question.id]: event.target.value }));
-                  setError('');
-                }}
-                value={answers[question.id]}
-                className="grid gap-3"
-              >
-                {question.options.map((option) => (
-                  <Radio.Button key={option.value} value={option.value} className="text-left">
-                    {option.label}
-                  </Radio.Button>
-                ))}
-              </Radio.Group>
+          </Card>
+        ) : (
+          <Card bordered={false} className="shadow-lg" bodyStyle={{ padding: "2.5rem" }}>
+            <Space direction="vertical" size="large" className="w-full items-center text-center">
+              <Empty description="Chưa chọn bài test" />
+              <p className="max-w-md text-sm text-slate-500">
+                Hãy chọn một trong các bài test phía trên để bắt đầu. Bạn có thể đổi bài test bất kỳ lúc nào và hệ thống sẽ hiển thị câu hỏi tương ứng.
+              </p>
             </Space>
           </Card>
-        ))}
-      </Space>
+        )}
+      </div>
+
+      {selectedTest && (
+        <Space direction="vertical" size="large" className="w-full">
+          {selectedTest.questions.map((question, index) => (
+            <Card
+              key={question.id}
+              className="border-none shadow-md"
+              title={`Câu ${index + 1}`}
+              extra={<Tag color={answers[question.id] ? "green" : "default"}>{answers[question.id] ? "Đã chọn" : "Chưa chọn"}</Tag>}
+            >
+              <Space direction="vertical" size="middle" className="w-full">
+                <p className="text-base font-medium text-slate-800">{question.prompt}</p>
+                <Radio.Group
+                  onChange={(event) => {
+                    setAnswers((prev) => ({ ...prev, [question.id]: event.target.value }));
+                    setError("");
+                  }}
+                  value={answers[question.id]}
+                  className="grid gap-3"
+                >
+                  {question.options.map((option) => (
+                    <Radio.Button key={option.value} value={option.value} className="text-left">
+                      {option.label}
+                    </Radio.Button>
+                  ))}
+                </Radio.Group>
+              </Space>
+            </Card>
+          ))}
+        </Space>
+      )}
 
       {error && <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
 
@@ -188,7 +209,7 @@ const TakeTestPage = () => {
         <Button shape="round" onClick={handleShuffle}>
           Đổi bộ câu hỏi
         </Button>
-        <Button type="primary" shape="round" onClick={handleSubmit}>
+        <Button type="primary" shape="round" onClick={handleSubmit} disabled={!selectedTest}>
           Gửi kết quả
         </Button>
       </Space>

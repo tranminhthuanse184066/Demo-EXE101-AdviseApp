@@ -6,6 +6,7 @@ import Header from './components/Header.jsx';
 import { useApp } from './context/AppContext.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import ChatDemoPage from './pages/ChatDemoPage.jsx';
+import AiChatPage from './pages/AiChatPage.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import ParentDashboard from './pages/ParentDashboard.jsx';
 import ReportPrintPage from './pages/ReportPrintPage.jsx';
@@ -88,6 +89,14 @@ const App = () => (
         element={
           <ProtectedRoute allowedRoles={['student', 'parent', 'advisor']}>
             <ChatDemoPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ai-coach"
+        element={
+          <ProtectedRoute allowedRoles={['student', 'parent', 'advisor']}>
+            <AiChatPage />
           </ProtectedRoute>
         }
       />
