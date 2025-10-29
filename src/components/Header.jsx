@@ -71,7 +71,7 @@ const Header = () => {
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600">
             <RocketOutlined />
           </span>
-          <span>EduPath Next</span>
+          <span>EduPath</span>
           <span className="hidden text-xs font-medium text-slate-500 sm:inline">Định hướng thế hệ mới</span>
         </button>
 
